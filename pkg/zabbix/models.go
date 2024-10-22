@@ -15,31 +15,31 @@ type ZabbixAPI struct {
 
 // zbxParams struct is a part of the zbxRequestLogin struct
 type zbxParams struct {
-	User     string `json:"user"`
+	UserName string `json:"username"`
 	Password string `json:"password"`
 }
 
 // zbxLogin struct is used to login to the Zabbix API
 type zbxRequestLogin struct {
-	JSONRPC string    `json:"JSONRPC"`
+	JSONRPC string    `json:"jsonrpc"`
 	Method  string    `json:"method"`
 	Params  zbxParams `json:"params"`
-	ID      int       `json:"ID"`
+	ID      int       `json:"id"`
 }
 
 // zbxRequestLogout struct is used to logout from the Zabbix API
 type zbxRequestLogout struct {
-	JSONRPC string            `json:"JSONRPC"`
+	JSONRPC string            `json:"jsonrpc"`
 	Method  string            `json:"method"`
 	Params  map[string]string `json:"params"`
 	Auth    string            `json:"auth"`
-	ID      int               `json:"ID"`
+	ID      int               `json:"id"`
 }
 
 type zbxLoginResponse struct {
-	JSONRPC string `json:"JSONRPC"`
+	JSONRPC string `json:"jsonrpc"`
 	Result  string `json:"result"`
-	ID      int    `json:"ID"`
+	ID      int    `json:"id"`
 }
 
 // type zbxTagsFilterProblem struct {
@@ -57,11 +57,11 @@ type zbxLoginResponse struct {
 // }
 
 // type zbxGetProblem struct {
-// 	JSONRPC string           `json:"JSONRPC"`
+// 	JSONRPC string           `json:"jsonrpc"`
 // 	Method  string           `json:"method"`
 // 	Params  zbxParamsProblem `json:"params"`
 // 	Auth    string           `json:"auth"`
-// 	ID      int              `json:"ID"`
+// 	ID      int              `json:"id"`
 // }
 
 // type zbxProblem struct {
@@ -83,7 +83,7 @@ type zbxLoginResponse struct {
 // }
 
 // type zbxResultProblem struct {
-// 	JSONRPC string       `json:"JSONRPC"`
+// 	JSONRPC string       `json:"jsonrpc"`
 // 	Result  []zbxProblem `json:"result"`
-// 	ID      int          `json:"ID"`
+// 	ID      int          `json:"id"`
 // }

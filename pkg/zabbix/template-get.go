@@ -13,24 +13,24 @@ const MethodTemplateGet = "template.get"
 
 // TemplateGetRequest struct is used to get templates from the Zabbix API
 type TemplateGetRequest struct {
-	JSONRPC string `json:"JSONRPC"`
+	JSONRPC string `json:"jsonrpc"`
 	Method  string `json:"method"`
 	Params  struct {
 		Output string       `json:"output"`
 		Filter ZabbixFilter `json:"filter"`
 	} `json:"params"`
 	Auth string `json:"auth"`
-	ID   int    `json:"ID"`
+	ID   int    `json:"id"`
 }
 
 // TemplateGetResponse struct is used to unmarshal the response from the Zabbix API
 type TemplateGetResponse struct {
-	JSONRPC string `json:"JSONRPC"`
+	JSONRPC string `json:"jsonrpc"`
 	Result  []struct {
 		TemplateID string `json:"templateID"`
 		Name       string `json:"name"`
 	} `json:"result"`
-	ID int `json:"ID"`
+	ID int `json:"id"`
 }
 
 // NewTemplateGetRequest returns a new TemplateGetRequest

@@ -36,7 +36,7 @@ func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
 		JSONRPC: JSONRPC,
 		Method:  MethodUserLogin,
 		Params: zbxParams{
-			User:     z.User,
+			UserName: z.User,
 			Password: z.Password,
 		},
 		ID: 1,
@@ -67,6 +67,7 @@ func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
 	if err != nil {
 		return z, fmt.Errorf("cannot unmarshal response: %w", err)
 	}
+	// fmt.Println(string(body))
 	if zbxResp.Result == "" {
 		return z, fmt.Errorf("cannot login: %w", errors.New("empty result"))
 	}

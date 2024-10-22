@@ -12,7 +12,7 @@ import (
 const MethodConfigurationExport = "configuration.export"
 
 type ConfigurationExportRequest struct {
-	JSONRPC string `json:"JSONRPC"`
+	JSONRPC string `json:"jsonrpc"`
 	Method  string `json:"method"`
 	Params  struct {
 		Options struct {
@@ -21,13 +21,13 @@ type ConfigurationExportRequest struct {
 		Format string `json:"format"`
 	} `json:"params"`
 	Auth string `json:"auth"`
-	ID   int    `json:"ID"`
+	ID   int    `json:"id"`
 }
 
 type ConfigurationExportResponse struct {
-	JSONRPC string `json:"JSONRPC"`
+	JSONRPC string `json:"jsonrpc"`
 	Result  string `json:"result"`
-	ID      int    `json:"ID"`
+	ID      int    `json:"id"`
 }
 
 func NewConfigurationExportRequest(templates []string) *ConfigurationExportRequest {
