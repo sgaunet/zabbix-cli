@@ -1,9 +1,14 @@
-package config
+package config_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/sgaunet/zabbix-cli/pkg/config"
+)
 
 func TestValid(t *testing.T) {
-	c := Config{
+	t.Parallel()
+	c := config.Config{
 		ZabbixEndpoint: "http://zabbix.mydomain.com/api_JSONRPC.php",
 		ZabbixUser:     "admin",
 		ZabbixPassword: "*****",
@@ -14,7 +19,8 @@ func TestValid(t *testing.T) {
 }
 
 func TestInvalidMissingZabbixEndpoint(t *testing.T) {
-	c := Config{
+	t.Parallel()
+	c := config.Config{
 		ZabbixEndpoint: "",
 		ZabbixUser:     "admin",
 		ZabbixPassword: "*****",
@@ -25,7 +31,8 @@ func TestInvalidMissingZabbixEndpoint(t *testing.T) {
 }
 
 func TestInvalidMissingZabbixUser(t *testing.T) {
-	c := Config{
+	t.Parallel()
+	c := config.Config{
 		ZabbixEndpoint: "http://zabbix.mydomain.com/api_JSONRPC.php",
 		ZabbixUser:     "",
 		ZabbixPassword: "*****",
@@ -36,7 +43,8 @@ func TestInvalidMissingZabbixUser(t *testing.T) {
 }
 
 func TestInvalidMissingZabbixPassword(t *testing.T) {
-	c := Config{
+	t.Parallel()
+	c := config.Config{
 		ZabbixEndpoint: "http://zabbix.mydomain.com/api_JSONRPC.php",
 		ZabbixUser:     "admin",
 		ZabbixPassword: "",
