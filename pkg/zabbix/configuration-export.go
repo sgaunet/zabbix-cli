@@ -9,6 +9,8 @@ import (
 	"net/http"
 )
 
+// Documentation of zabbix api: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/configuration/export
+
 const MethodConfigurationExport = "configuration.export"
 
 type ConfigurationExportRequest struct {
@@ -48,14 +50,17 @@ func NewConfigurationExportRequest(templates []string) *ConfigurationExportReque
 			Format: "yaml",
 		},
 		Auth: "",
-		ID:   1,
+		ID:   generateUniqueID(),
 	}
 }
 
 func (z *ZabbixAPI) Export(ctx context.Context, c *ConfigurationExportRequest) (*ConfigurationExportResponse, error) {
 	// initialize auth token
 	c.Auth = z.Auth()
-	postBody, _ := json.Marshal(c)
+	postBody, err := json.Marshal(c)
+	if err != nil {
+		return nil, fmt.Errorf("cannot marshal data: %w", err)
+	}
 	responseBody := bytes.NewBuffer(postBody)
 	req, err := http.NewRequest(http.MethodPost, z.APIEndpoint, responseBody)
 	if err != nil {
