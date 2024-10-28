@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,8 +13,8 @@ import (
 // defaultTimeout is the default timeout for the HTTP client
 const defaultTimeout = 5 * time.Second
 
-const MethodUserLogin = "user.login"
-const MethodUserLogout = "user.logout"
+const methodUserLogin = "user.login"
+const methodUserLogout = "user.logout"
 
 // New creates a new ZabbixAPI object
 // and logs in to the Zabbix API
@@ -34,12 +33,12 @@ func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
 	}
 	data := zbxRequestLogin{
 		JSONRPC: JSONRPC,
-		Method:  MethodUserLogin,
+		Method:  methodUserLogin,
 		Params: zbxParams{
 			UserName: z.User,
 			Password: z.Password,
 		},
-		ID: 1,
+		ID: generateUniqueID(),
 	}
 
 	postBody, err := json.Marshal(data)
@@ -60,28 +59,27 @@ func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return z, err
+		return z, fmt.Errorf("cannot read response: %w", err)
 	}
 	var zbxResp zbxLoginResponse
 	err = json.Unmarshal(body, &zbxResp)
 	if err != nil {
-		return z, fmt.Errorf("cannot unmarshal response: %w", err)
+		return z, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(body))
 	}
-	// fmt.Println(string(body))
 	if zbxResp.Result == "" {
-		return z, fmt.Errorf("cannot login: %w", errors.New("empty result"))
+		return z, fmt.Errorf("cannot login: %w", ErrEmptyResult)
 	}
 	z.auth = zbxResp.Result
-	return z, err
+	return z, nil
 }
 
 // Logout logs out from the Zabbix API
 func (z *ZabbixAPI) Logout(ctx context.Context) error {
 	data := zbxRequestLogout{
 		JSONRPC: JSONRPC,
-		Method:  MethodUserLogout,
+		Method:  methodUserLogout,
 		Params:  make(map[string]string),
-		ID:      1,
+		ID:      z.id,
 		Auth:    z.auth,
 	}
 
@@ -90,7 +88,7 @@ func (z *ZabbixAPI) Logout(ctx context.Context) error {
 		return fmt.Errorf("cannot marshal data: %w", err)
 	}
 	responseBody := bytes.NewBuffer(postBody)
-	req, err := http.NewRequest("POST", z.APIEndpoint, responseBody)
+	req, err := http.NewRequest(http.MethodPost, z.APIEndpoint, responseBody)
 	if err != nil {
 		return fmt.Errorf("cannot create request: %w", err)
 	}

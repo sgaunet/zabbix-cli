@@ -11,6 +11,7 @@ type ZabbixAPI struct {
 	APIEndpoint string
 	User        string
 	Password    string
+	id          int // id for the JSON-RPC request - unique identifier
 }
 
 // zbxParams struct is a part of the zbxRequestLogin struct
@@ -41,49 +42,3 @@ type zbxLoginResponse struct {
 	Result  string `json:"result"`
 	ID      int    `json:"id"`
 }
-
-// type zbxTagsFilterProblem struct {
-// 	Tag      string `json:"tag" yaml:"tag"`
-// 	Value    string `json:"value" yaml:"value"`
-// 	Operator string `json:"operator" yaml:"operator"`
-// }
-
-// type zbxParamsProblem struct {
-// 	Suppressed   bool                   `json:"suppressed"`
-// 	Recent       bool                   `json:"recent"`
-// 	Acknowledged bool                   `json:"acknowledged"`
-// 	TimeFrom     string                 `json:"time_from"`
-// 	Tags         []zbxTagsFilterProblem `json:"tags"`
-// }
-
-// type zbxGetProblem struct {
-// 	JSONRPC string           `json:"jsonrpc"`
-// 	Method  string           `json:"method"`
-// 	Params  zbxParamsProblem `json:"params"`
-// 	Auth    string           `json:"auth"`
-// 	ID      int              `json:"id"`
-// }
-
-// type zbxProblem struct {
-// 	Acknowledged  string `json:"acknowledged"`
-// 	Clock         string `json:"clock"`
-// 	CorrelationID string `json:"correlationID"`
-// 	EventID       string `json:"eventID"`
-// 	Name          string `json:"name"`
-// 	Ns            string `json:"ns"`
-// 	Object        string `json:"object"`
-// 	ObjectID      string `json:"objectID"`
-// 	Opdata        string `json:"opdata"`
-// 	Rclock        string `json:"r_clock"`
-// 	ReventID      string `json:"r_eventID"`
-// 	Rns           string `json:"r_ns"`
-// 	Severity      string `json:"severity"`
-// 	Source        string `json:"source"`
-// 	Suppressed    string `json:"suppressed"`
-// }
-
-// type zbxResultProblem struct {
-// 	JSONRPC string       `json:"jsonrpc"`
-// 	Result  []zbxProblem `json:"result"`
-// 	ID      int          `json:"id"`
-// }
