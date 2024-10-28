@@ -20,12 +20,24 @@ tasks:
       - CGO_ENABLED=0 go build -o {{ .BINFILE }} cmd/*.go
     # silent: true
 
+  linter:
+    desc: "Run linter"
+    cmds:
+      - golangci-lint run -c .github/linters/.golangci.yml
+
   # tests:
   #   desc: "Run tests"
   #   dir: tests
   #   cmds:
   #     - venom run testsuite.yml --output-dir="log" --stop-on-failure
 
+  godoc:
+    desc: "godoc server"
+    cmds:
+      - go install golang.org/x/tools/cmd/godoc@latest
+      - echo "http://localhost:6060/pkg/github.com/sgaunet/zabbix-cli/"
+      - godoc -http=:6060
+  
   snapshot:
     desc: "Create snapshot"
     cmds:
