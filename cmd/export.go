@@ -34,9 +34,9 @@ var exportCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)
 		}
-		defer z.Logout(ctx)
+		defer z.Logout(ctx) //nolint: errcheck
 
-		res, err := z.GetTemplate(z.NewTemplateGetRequest([]string{templateName}))
+		res, err := z.GetTemplates([]string{templateName})
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)
