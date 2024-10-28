@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -9,9 +10,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string = "default"
+var conf *config.Config // configuration
+var cfgFile string      // permanent flag to specify configuration file
+
+// templateName is a flag to specify the template name (export)
 var templateName string
-var conf *config.Config
+
+// templateFile is a flag to specify the template file (import)
+var templateFile string
+
+var ErrInvalidConfig = errors.New("invalid configuration")
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -29,9 +37,16 @@ func Execute() {
 
 func init() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "default", "configuration file (default is $HOME/.config/zabbix-cli/default.yaml)")
+
 	// export subcommand
-	exportCmd.Flags().StringVar(&templateName, "t", "", "template name to export")
+	exportCmd.Flags().StringVarP(&templateName, "template", "t", "", "template name to export")
+	// import subcommand
+	importCmd.Flags().StringVarP(&templateFile, "file", "f", "", "template file to import")
+	importCmd.MarkFlagRequired("f") //nolint: errcheck
+
 	rootCmd.AddCommand(exportCmd)
+	rootCmd.AddCommand(importCmd)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -56,11 +71,10 @@ func initConfig() error {
 	conf = &config.Config{}
 	err = viper.Unmarshal(conf)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "unable to decode into config struct, %v", err)
-		os.Exit(1)
+		return fmt.Errorf("unable to decode into config struct, %w", err)
 	}
 	if !conf.IsValid() {
-		return fmt.Errorf("config is not valid")
+		return ErrInvalidConfig
 	}
 	return nil
 }
