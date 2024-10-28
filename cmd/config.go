@@ -7,12 +7,12 @@ import (
 )
 
 var example string = `
-zabbix_endpoint: http://zabbix.mydomain.com/api_JSONRPC.php
+zabbix_endpoint: http://zabbix.mydomain.com/api_jsonrpc.php
 zabbix_user: admin
 zabbix_password: *****
 `
 
-// printConfigCmd represents the prodautos command
+// printConfigCmd represents the config command
 var printConfigCmd = &cobra.Command{
 	Use:   "config",
 	Short: "describes how to configure zabbix-cli",
