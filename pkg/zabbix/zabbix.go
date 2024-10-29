@@ -37,6 +37,7 @@ type zbxRequestLogout struct {
 	ID      int               `json:"id"`
 }
 
+// zbxLoginResponse struct is the response from the Zabbix API after a login request
 type zbxLoginResponse struct {
 	JSONRPC string `json:"jsonrpc"`
 	Result  string `json:"result"`

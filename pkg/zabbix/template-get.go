@@ -27,6 +27,34 @@ type templateGetRequest struct {
 	ID      int                      `json:"id"`
 }
 
+// templateGetRequestOption is the options struct to get templates
+type templateGetRequestOption func(*templateGetRequest)
+
+// GetTemplateOptionFilterByName returns a templateGetRequestOption to filter by name
+func GetTemplateOptionFilterByName(templatesNames []string) templateGetRequestOption {
+	return func(c *templateGetRequest) {
+		c.Params.Filter["name"] = templatesNames
+	}
+}
+
+// newTemplateGetRequest returns a new templateGetRequest
+func newTemplateGetRequest(options ...templateGetRequestOption) *templateGetRequest {
+	c := &templateGetRequest{
+		JSONRPC: JSONRPC,
+		Method:  methodTemplateGet,
+		Params: templateGetRequestParams{
+			Output: "extend",
+			Filter: map[string]interface{}{},
+		},
+		Auth: "",
+		ID:   generateUniqueID(),
+	}
+	for _, opt := range options {
+		opt(c)
+	}
+	return c
+}
+
 // templateGetResponse struct is used to unmarshal the response from the Zabbix API
 type templateGetResponse struct {
 	JSONRPC string `json:"jsonrpc"`
@@ -34,21 +62,13 @@ type templateGetResponse struct {
 		TemplateID string `json:"templateID"`
 		Name       string `json:"name"`
 	} `json:"result"`
+	// Error is the error message when the request fails TODO
 	ID int `json:"id"`
 }
 
 // NewTemplateGetRequest returns a new TemplateGetRequest
-func (z *ZabbixAPI) GetTemplates(templatesNames []string) (*templateGetResponse, error) {
-	payload := &templateGetRequest{
-		JSONRPC: JSONRPC,
-		Method:  methodTemplateGet,
-		Params: templateGetRequestParams{
-			Output: "extend",
-			Filter: NewZabbixFilterGetMethod(AddFilter("name", templatesNames)).GetFilter(),
-		},
-		Auth: z.Auth(),
-		ID:   generateUniqueID(),
-	}
+func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*templateGetResponse, error) {
+	payload := newTemplateGetRequest(options...)
 
 	postBody, err := json.Marshal(payload)
 	if err != nil {
@@ -78,36 +98,6 @@ func (z *ZabbixAPI) GetTemplates(templatesNames []string) (*templateGetResponse,
 	}
 	return &res, nil
 }
-
-// // GetTemplate returns the templates from the Zabbix API
-// func (z *ZabbixAPI) GetTemplate(c *templateGetRequest) (*templateGetResponse, error) {
-// 	// initialize auth token
-// 	c.Auth = z.Auth()
-// 	postBody, _ := json.Marshal(c)
-// 	responseBody := bytes.NewBuffer(postBody)
-// 	req, err := http.NewRequest(http.MethodPost, z.APIEndpoint, responseBody)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("cannot create request: %w", err)
-// 	}
-// 	req = req.WithContext(context.TODO())
-// 	req.Header.Set("Content-Type", "application/json")
-// 	resp, err := z.client.Do(req)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("cannot do request: %w", err)
-// 	}
-// 	defer resp.Body.Close()
-// 	body, err := io.ReadAll(resp.Body)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("cannot read response body: %w", err)
-// 	}
-
-// 	var res templateGetResponse
-// 	err = json.Unmarshal(body, &res)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("cannot unmarshal response: %w", err)
-// 	}
-// 	return &res, nil
-// }
 
 // GetTemplateID returns the ID of the templates
 func (t *templateGetResponse) GetTemplateID() []string {

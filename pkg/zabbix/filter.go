@@ -22,8 +22,11 @@ func NewZabbixFilterGetMethod(options ...zabbixFilterGetMethodOption) *ZabbixFil
 	return z
 }
 
-// AddFilter adds a filter to the ZabbixFilterGetMethod
-func AddFilter(key string, value interface{}) zabbixFilterGetMethodOption {
+// Filter adds a filter to the ZabbixFilterGetMethod
+// key is the property name
+// value is the value to match against
+// Be careful, the key must be a valid property name, no validation is done
+func Filter(key string, value interface{}) zabbixFilterGetMethodOption {
 	return func(z *ZabbixFilterGetMethod) {
 		z.filter[key] = value
 	}
@@ -34,12 +37,12 @@ func (z *ZabbixFilterGetMethod) GetFilter() map[string]interface{} {
 	return z.filter
 }
 
-// AddFilterName
-func AddFilterName(name string) zabbixFilterGetMethodOption {
-	return AddFilter("name", name)
+// FilterName
+func FilterByName(name string) zabbixFilterGetMethodOption {
+	return Filter("name", name)
 }
 
-// AddFilterNames
-func AddFilterNames(names []string) zabbixFilterGetMethodOption {
-	return AddFilter("name", names)
+// FilterNames
+func FilterByNames(names []string) zabbixFilterGetMethodOption {
+	return Filter("name", names)
 }

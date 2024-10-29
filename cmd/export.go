@@ -36,21 +36,21 @@ var exportCmd = &cobra.Command{
 		}
 		defer z.Logout(ctx) //nolint: errcheck
 
-		res, err := z.GetTemplates([]string{templateName})
+		res, err := z.GetTemplates(zabbix.GetTemplateOptionFilterByName([]string{templateName}))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)
 		}
-		for _, template := range res.Result {
+		templatesID := res.GetTemplateID()
+		for _, tmplID := range templatesID {
 			// fmt.Println(template.TemplateID, template.Name)
-			c := zabbix.NewConfigurationExportRequest([]string{template.TemplateID})
-			res, err := z.Export(ctx, c)
+			res, err := z.Export(ctx, zabbix.ExportRequestOptionYAMLFormat(), zabbix.ExportRequestOptionTemplatesID([]string{tmplID}))
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 				os.Exit(1)
 			}
 			// trim \n by real new line
-			result := strings.ReplaceAll(res.Result, "\\n", "\n")
+			result := strings.ReplaceAll(res, "\\n", "\n")
 			fmt.Println(result)
 		}
 	},

@@ -17,12 +17,6 @@ const methodConfigurationImport = "configuration.import"
 // it's the same as configuration.importcompare
 type configurationImportRequest configurationImportCompareRequest
 
-// type ConfigurationExportResponse struct {
-// 	JSONRPC string `json:"jsonrpc"`
-// 	Result  string `json:"result"`
-// 	ID      int    `json:"id"`
-// }
-
 func newConfigurationImportRequest(source string) *configurationImportRequest {
 	return &configurationImportRequest{
 		JSONRPC: JSONRPC,

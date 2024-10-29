@@ -8,7 +8,7 @@ zabbix-cli is a command line tool to interact with Zabbix API.
 
 - [x] Export templates YAML
 - [ ] Export templates JSON
-- [ ] Import templates
+- [x] Import templates YAML
 - [ ] Export hosts
 - [ ] Import hosts
 - [ ] ...
