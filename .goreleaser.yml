@@ -8,7 +8,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - -X main.version={{.Version}}
+      - -X github.com/sgaunet/zabbix-cli/cmd.version={{.Version}}
     goos:
       - linux
       - darwin
