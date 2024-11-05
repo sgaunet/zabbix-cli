@@ -15,12 +15,12 @@ const defaultConfigurationExportFormat = "yaml"
 
 // configurationExportOptions is the options struct to export configuration
 type configurationExportOptions struct {
-	GroupsID     []string `json:"groups"`     // (array) IDs of host groups to export.
-	HostsID      []string `json:"hosts"`      // (array) IDs of hosts to export.
-	ImagesID     []string `json:"images"`     // (array) IDs of images to export.
-	MapsID       []string `json:"maps"`       // (array) IDs of maps to export.
-	MediaTypesID []string `json:"mediaTypes"` // (array) IDs of media types to export.
-	TemplatesID  []string `json:"templates"`  // (array) IDs of templates to export.
+	GroupsID     []string `json:"groups,omitempty"`     // (array) IDs of host groups to export.
+	HostsID      []string `json:"hosts,omitempty"`      // (array) IDs of hosts to export.
+	ImagesID     []string `json:"images,omitempty"`     // (array) IDs of images to export.
+	MapsID       []string `json:"maps,omitempty"`       // (array) IDs of maps to export.
+	MediaTypesID []string `json:"mediaTypes,omitempty"` // (array) IDs of media types to export.
+	TemplatesID  []string `json:"templates,omitempty"`  // (array) IDs of templates to export.
 }
 
 // configurationExportParams is the params struct to export configuration
@@ -113,10 +113,10 @@ func ExportRequestOptionXMLFormat() configurationExportRequestOption {
 
 // ConfigurationExportRequest is the response struct of a configuration export request
 type configurationExportResponse struct {
-	JSONRPC string `json:"jsonrpc"`
-	Result  string `json:"result"`
-	ID      int    `json:"id"`
-	// TODO: handle errors
+	JSONRPC  string   `json:"jsonrpc"`
+	Result   string   `json:"result"`
+	ID       int      `json:"id"`
+	ErrorMsg ErrorMsg `json:"error,omitempty"`
 }
 
 func (z *ZabbixAPI) Export(ctx context.Context, opt ...configurationExportRequestOption) (string, error) {
@@ -149,6 +149,8 @@ func (z *ZabbixAPI) Export(ctx context.Context, opt ...configurationExportReques
 	if err != nil {
 		return "", fmt.Errorf("cannot unmarshal response: %w", err)
 	}
-	// TODO: handle errors
+	if res.ErrorMsg != (ErrorMsg{}) {
+		return "", fmt.Errorf("error message: %s", res.ErrorMsg.Error())
+	}
 	return res.Result, nil
 }
