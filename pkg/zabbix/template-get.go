@@ -69,6 +69,7 @@ type templateGetResponse struct {
 // NewTemplateGetRequest returns a new TemplateGetRequest
 func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*templateGetResponse, error) {
 	payload := newTemplateGetRequest(options...)
+	payload.Auth = z.Auth()
 
 	postBody, err := json.Marshal(payload)
 	if err != nil {
