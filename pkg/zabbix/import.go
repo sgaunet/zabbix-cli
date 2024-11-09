@@ -2,7 +2,7 @@ package zabbix
 
 // API documentation: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/configuration/importcompare
 
-const methodConfigurationImportCompare = "configuration.importcompare"
+// const methodConfigurationImportCompare = "configuration.importcompare"
 
 type importDiscoveryRules struct {
 	CreateMissing  bool `json:"createMissing"`

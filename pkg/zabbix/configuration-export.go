@@ -150,7 +150,7 @@ func (z *ZabbixAPI) Export(ctx context.Context, opt ...configurationExportReques
 		return "", fmt.Errorf("cannot unmarshal response: %w", err)
 	}
 	if res.ErrorMsg != (ErrorMsg{}) {
-		return "", fmt.Errorf("error message: %s", res.ErrorMsg.Error())
+		return "", fmt.Errorf("error message: %w", &res.ErrorMsg)
 	}
 	return res.Result, nil
 }

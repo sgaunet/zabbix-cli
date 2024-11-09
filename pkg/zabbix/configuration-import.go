@@ -65,7 +65,7 @@ func (z *ZabbixAPI) Import(ctx context.Context, source string) (bool, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("status code not OK: %d - %s", resp.StatusCode, string(body))
+		return false, fmt.Errorf("status code not OK: %d - %s (%w)", resp.StatusCode, string(body), ErrWrongHTTPCode)
 	}
 
 	var res configurationImportResponse
@@ -74,7 +74,7 @@ func (z *ZabbixAPI) Import(ctx context.Context, source string) (bool, error) {
 		return false, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(body))
 	}
 	if res.ErrorMsg != (ErrorMsg{}) {
-		return false, fmt.Errorf("error message: %s", res.ErrorMsg.Error())
+		return false, fmt.Errorf("error message: %w", &res.ErrorMsg)
 	}
 	return res.Result, nil
 }
