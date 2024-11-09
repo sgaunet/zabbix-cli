@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/sgaunet/zabbix-cli/pkg/zabbix"
 	"github.com/spf13/cobra"
@@ -49,9 +48,7 @@ var exportCmd = &cobra.Command{
 				fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 				os.Exit(1)
 			}
-			// trim \n by real new line
-			result := strings.ReplaceAll(res, "\\n", "\n")
-			fmt.Println(result)
+			fmt.Println(res)
 		}
 	},
 }
