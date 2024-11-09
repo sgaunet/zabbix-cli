@@ -6,12 +6,8 @@ zabbix-cli is a command line tool to interact with Zabbix API.
 
 ## Features
 
-- [x] Export templates YAML
-- [ ] Export templates JSON
-- [x] Import templates YAML
-- [ ] Export hosts
-- [ ] Import hosts
-- [ ] ...
+- Export templates YAML
+- Import templates YAML
 
 ## zabbix API
 
@@ -31,6 +27,7 @@ Available Commands:
   config      describes how to configure zabbix-cli
   export      export template
   help        Help about any command
+  import      import template
   version     print version of zabbix-cli
 
 Flags:
@@ -50,7 +47,7 @@ Download the binary in the release section.
 Docker registry is: sgaunet/zabbix-cli
 
 - The docker image is multi-arch
-- It contains only the binary, user multi stage build to copy zabbix-cli in your image
+- It contains only the binary, use multi stage build to copy zabbix-cli in your image
 
 ```Dockerfile
 FROM sgaunet/zabbix-cli:latest as zabbix-cli
@@ -69,7 +66,7 @@ This project is using:
 - [docker buildx](https://github.com/docker/buildx)
 - docker manifest
 - [goreleaser](https://goreleaser.com/)
-- ~~[venom](https://github.com/ovh/venom) : Tests~~
+- [venom](https://github.com/ovh/venom) : Tests
 - [pre-commit](https://pre-commit.com/)
 
 There are hooks executed in the precommit stage. Once the project cloned on your disk, please install pre-commit:
@@ -98,9 +95,11 @@ task dev:pre-commit
 
 ## Tests
 
-~~Tests are done with [venom](https://github.com/ovh/venom).~~
+Tests are done with [venom](https://github.com/ovh/venom).
 
 ```bash
 cd tests
-venom run
+docker compose up -d
+# Check that the stack is up before running the tests
+task tests
 ```

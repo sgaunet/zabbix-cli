@@ -1,0 +1,51 @@
+name: Exec testsuite
+testcases:
+
+- name: check configuration file exists
+  steps:
+  - type: exec
+    script: |
+      test -f $HOME/.config/zabbix-cli/test.yml
+    info: "result.systemout is {{.result.systemout}}"
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: export template Apache by HTTP
+  steps:
+  - type: exec
+    script: |
+      cd ..
+      go run . -c test export -t "Apache by HTTP" > /tmp/apache.yaml
+    # info: "result.systemout is {{.result.systemout}}"
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: Check exported template is not empty
+  steps:
+  - type: exec
+    script: |
+      test -s /tmp/apache.yaml
+    # info: "result.systemout is {{.result.systemout}}"
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: Import template Apache by HTTP
+  steps:
+  - type: exec
+    script: |
+      cd ..
+      go run . -c test import -f /tmp/apache.yaml
+    # info: "result.systemout is {{.result.systemout}}"
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: export again template Apache by HTTP
+  steps:
+  - type: exec
+    script: |
+      cd ..
+      go run . -c test export -t "Apache by HTTP" > /tmp/apache2.yaml
+    # info: "result.systemout is {{.result.systemout}}"
+    assertions:
+    - result.code ShouldEqual 0
+

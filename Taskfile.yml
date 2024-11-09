@@ -25,11 +25,11 @@ tasks:
     cmds:
       - golangci-lint run -c .github/linters/.golangci.yml
 
-  # tests:
-  #   desc: "Run tests"
-  #   dir: tests
-  #   cmds:
-  #     - venom run testsuite.yml --output-dir="log" --stop-on-failure
+  tests:
+    desc: "Run tests"
+    dir: tests
+    cmds:
+      - venom run testsuite.yml --output-dir="log" --stop-on-failure
 
   godoc:
     desc: "godoc server"
