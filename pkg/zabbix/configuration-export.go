@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 // Documentation of zabbix api: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/configuration/export
@@ -120,9 +121,12 @@ func (z *ZabbixAPI) Export(ctx context.Context, opt ...configurationExportReques
 	c := NewConfigurationExportRequest(opt...)
 	// initialize auth token
 	c.Auth = z.Auth()
-	_, body, err := z.postRequest(ctx, c) // TODO control status code
+	statusCode, body, err := z.postRequest(ctx, c)
 	if err != nil {
 		return "", fmt.Errorf("cannot do request: %w", err)
+	}
+	if statusCode != http.StatusOK {
+		return "", fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
 
 	var res configurationExportResponse

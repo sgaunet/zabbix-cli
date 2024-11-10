@@ -41,9 +41,12 @@ func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
 		ID: generateUniqueID(),
 	}
 
-	_, resp, err := z.postRequest(context.Background(), data) // TODO control status code
+	statusCode, resp, err := z.postRequest(context.Background(), data)
 	if err != nil {
 		return z, fmt.Errorf("cannot do request: %w", err)
+	}
+	if statusCode != http.StatusOK {
+		return z, fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
 	var zbxResp zbxLoginResponse
 	err = json.Unmarshal(resp, &zbxResp)
@@ -67,9 +70,12 @@ func (z *ZabbixAPI) Logout(ctx context.Context) error {
 		Auth:    z.auth,
 	}
 
-	_, _, err := z.postRequest(ctx, data) // TODO control status code
+	statusCode, _, err := z.postRequest(ctx, data)
 	if err != nil {
 		return fmt.Errorf("cannot do request: %w", err)
+	}
+	if statusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
 	return nil
 }

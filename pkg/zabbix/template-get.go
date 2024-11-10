@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 // Documentation of zabbix api: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/template/get
@@ -68,9 +69,12 @@ func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*template
 	payload := newTemplateGetRequest(options...)
 	payload.Auth = z.Auth()
 
-	_, body, err := z.postRequest(context.Background(), payload) // TODO control status code
+	statusCode, body, err := z.postRequest(context.Background(), payload)
 	if err != nil {
 		return nil, fmt.Errorf("cannot do request: %w", err)
+	}
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
 
 	var res templateGetResponse
