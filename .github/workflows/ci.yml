@@ -2,11 +2,9 @@ name: build
 on:
   push:
     branches:
-      - main
+      - '**'
     tags:
-      - '!*' # Do not execute on tags
-    # paths:
-    #   - calcdatelib/*
+      - '**'
 
 jobs:
   # test:
@@ -42,4 +40,4 @@ jobs:
       # after build step
     - run: ./cc-test-reporter after-build --prefix=github.com/sgaunet/zabbix-cli
       env:
-          CC_TEST_REPORTER_ID: ${{ env.CC_TEST_REPORTER_ID }}
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
