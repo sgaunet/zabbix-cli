@@ -1,12 +1,9 @@
 package zabbix
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 )
 
 // Documentation of zabbix api: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/template/get
@@ -71,25 +68,9 @@ func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*template
 	payload := newTemplateGetRequest(options...)
 	payload.Auth = z.Auth()
 
-	postBody, err := json.Marshal(payload)
-	if err != nil {
-		return nil, fmt.Errorf("cannot marshal data: %w", err)
-	}
-	responseBody := bytes.NewBuffer(postBody)
-	req, err := http.NewRequest(http.MethodPost, z.APIEndpoint, responseBody)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create request: %w", err)
-	}
-	req = req.WithContext(context.TODO())
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := z.client.Do(req)
+	_, body, err := z.postRequest(context.Background(), payload) // TODO control status code
 	if err != nil {
 		return nil, fmt.Errorf("cannot do request: %w", err)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("cannot read response body: %w", err)
 	}
 
 	var res templateGetResponse

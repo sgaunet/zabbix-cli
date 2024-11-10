@@ -1,11 +1,9 @@
 package zabbix
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -43,29 +41,13 @@ func (z *ZabbixAPI) Import(ctx context.Context, source string) (bool, error) {
 	// initialize auth token
 	c.Auth = z.Auth()
 
-	postBody, err := json.Marshal(c)
-	if err != nil {
-		return false, fmt.Errorf("cannot marshal data: %w", err)
-	}
-	responseBody := bytes.NewBuffer(postBody)
-	req, err := http.NewRequest(http.MethodPost, z.APIEndpoint, responseBody)
-	if err != nil {
-		return false, fmt.Errorf("cannot create request: %w", err)
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := z.client.Do(req)
+	statusCode, body, err := z.postRequest(ctx, c)
 	if err != nil {
 		return false, fmt.Errorf("cannot do request: %w", err)
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return false, fmt.Errorf("cannot read response body: %w", err)
-	}
 
-	if resp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("status code not OK: %d - %s (%w)", resp.StatusCode, string(body), ErrWrongHTTPCode)
+	if statusCode != http.StatusOK {
+		return false, fmt.Errorf("status code not OK: %d - %s (%w)", statusCode, string(body), ErrWrongHTTPCode)
 	}
 
 	var res configurationImportResponse

@@ -41,30 +41,14 @@ func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
 		ID: generateUniqueID(),
 	}
 
-	postBody, err := json.Marshal(data)
-	if err != nil {
-		return z, fmt.Errorf("cannot marshal data: %w", err)
-	}
-	responseBody := bytes.NewBuffer(postBody)
-	req, err := http.NewRequest(http.MethodPost, z.APIEndpoint, responseBody)
-	if err != nil {
-		return z, fmt.Errorf("cannot create request: %w", err)
-	}
-	req = req.WithContext(context.TODO())
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := z.client.Do(req)
+	_, resp, err := z.postRequest(context.Background(), data) // TODO control status code
 	if err != nil {
 		return z, fmt.Errorf("cannot do request: %w", err)
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return z, fmt.Errorf("cannot read response: %w", err)
-	}
 	var zbxResp zbxLoginResponse
-	err = json.Unmarshal(body, &zbxResp)
+	err = json.Unmarshal(resp, &zbxResp)
 	if err != nil {
-		return z, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(body))
+		return z, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(resp))
 	}
 	if zbxResp.Result == "" {
 		return z, fmt.Errorf("cannot login: %w", ErrEmptyResult)
@@ -83,22 +67,10 @@ func (z *ZabbixAPI) Logout(ctx context.Context) error {
 		Auth:    z.auth,
 	}
 
-	postBody, err := json.Marshal(data)
-	if err != nil {
-		return fmt.Errorf("cannot marshal data: %w", err)
-	}
-	responseBody := bytes.NewBuffer(postBody)
-	req, err := http.NewRequest(http.MethodPost, z.APIEndpoint, responseBody)
-	if err != nil {
-		return fmt.Errorf("cannot create request: %w", err)
-	}
-	req = req.WithContext(ctx)
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := z.client.Do(req)
+	_, _, err := z.postRequest(ctx, data) // TODO control status code
 	if err != nil {
 		return fmt.Errorf("cannot do request: %w", err)
 	}
-	defer resp.Body.Close()
 	return nil
 }
 
@@ -107,4 +79,40 @@ func (z *ZabbixAPI) Logout(ctx context.Context) error {
 // This token is initialized during the login process
 func (z *ZabbixAPI) Auth() string {
 	return z.auth
+}
+
+// postRequest sends a POST request to the Zabbix API
+// It returns the status code, the response body and an error if any
+func (z *ZabbixAPI) postRequest(ctx context.Context, payload interface{}) (int, []byte, error) {
+	return z.request(ctx, http.MethodPost, payload)
+}
+
+// func (z *ZabbixAPI) getRequest(ctx context.Context, payload interface{}) (int, []byte, error) {
+// 	return z.request(ctx, http.MethodGet, c)
+// }
+
+// request sends a request to the Zabbix API
+// It returns the status code, the response body and an error if any
+func (z *ZabbixAPI) request(ctx context.Context, method string, payload interface{}) (int, []byte, error) {
+	postBody, err := json.Marshal(payload)
+	if err != nil {
+		return 0, nil, fmt.Errorf("cannot marshal data: %w", err)
+	}
+	responseBody := bytes.NewBuffer(postBody)
+	req, err := http.NewRequest(method, z.APIEndpoint, responseBody)
+	if err != nil {
+		return 0, nil, fmt.Errorf("cannot create request: %w", err)
+	}
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := z.client.Do(req)
+	if err != nil {
+		return 0, nil, fmt.Errorf("cannot do request: %w", err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, nil, fmt.Errorf("cannot read response body: %w", err)
+	}
+	return resp.StatusCode, body, nil
 }
