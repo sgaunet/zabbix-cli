@@ -41,5 +41,5 @@ jobs:
     - run: go test ./... -coverprofile c.out
       # after build step
     - run: ./cc-test-reporter after-build --prefix=github.com/sgaunet/zabbix-cli
-      # will use env var CC_TEST_REPORTER_ID
-
+      env:
+          CC_TEST_REPORTER_ID: ${{ env.CC_TEST_REPORTER_ID }}
