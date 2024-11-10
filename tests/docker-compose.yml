@@ -1,0 +1,52 @@
+
+services:
+  zabbix-web:    # The main Zabbix web UI or interface https://hub.docker.com/r/zabbix/zabbix-web-nginx-pgsql/tags
+    image: zabbix/zabbix-web-nginx-pgsql:ubuntu-6.0.11
+    restart: always
+    env_file:
+      - web.env
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    sysctls:
+      - net.core.somaxconn=65535
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  zabbix-server:     # The main Zabbix Server Software Service https://hub.docker.com/r/zabbix/zabbix-server-pgsql/tags
+    image: zabbix/zabbix-server-pgsql:ubuntu-6.0.11
+    restart: always
+    env_file:
+      - srv.env
+    ports:
+    - 10051:10051
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15.2-alpine
+    container_name: postgres
+    ports:
+    - 5432:5432
+    stop_grace_period: 1m
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    # volumes:
+    #   - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+networks:
+  zabbix-network:
+    driver: bridge
