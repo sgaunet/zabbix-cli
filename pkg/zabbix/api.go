@@ -17,13 +17,9 @@ const methodUserLogin = "user.login"
 const methodUserLogout = "user.logout"
 
 // New creates a new ZabbixAPI object
-// and logs in to the Zabbix API
-// It returns the ZabbixAPI object
-// and an error if any
 // The default timeout is 5 seconds
-// Don't forget to call Logout() to logout
-func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
-	z := ZabbixAPI{
+func New(user, password, apiEndpoint string) ZabbixAPI {
+	return ZabbixAPI{
 		APIEndpoint: apiEndpoint,
 		User:        user,
 		Password:    password,
@@ -31,38 +27,48 @@ func New(user, password, apiEndpoint string) (ZabbixAPI, error) {
 			Timeout: defaultTimeout,
 		},
 	}
-	data := zbxRequestLogin{
+}
+
+// SetHTTPClient sets the HTTP client
+func (z *ZabbixAPI) SetHTTPClient(client *http.Client) {
+	z.client = client
+}
+
+// Login logs in to the Zabbix API
+// Don't forget to call Logout() to logout
+func (z *ZabbixAPI) Login(ctx context.Context) error {
+	data := ZbxRequestLogin{
 		JSONRPC: JSONRPC,
 		Method:  methodUserLogin,
-		Params: zbxParams{
+		Params: ZbxParams{
 			UserName: z.User,
 			Password: z.Password,
 		},
 		ID: generateUniqueID(),
 	}
 
-	statusCode, resp, err := z.postRequest(context.Background(), data)
+	statusCode, resp, err := z.postRequest(ctx, data)
 	if err != nil {
-		return z, fmt.Errorf("cannot do request: %w", err)
+		return fmt.Errorf("cannot do request: %w", err)
 	}
 	if statusCode != http.StatusOK {
-		return z, fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
+		return fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
-	var zbxResp zbxLoginResponse
+	var zbxResp ZbxLoginResponse
 	err = json.Unmarshal(resp, &zbxResp)
 	if err != nil {
-		return z, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(resp))
+		return fmt.Errorf("cannot unmarshal response: %w - %s", err, string(resp))
 	}
 	if zbxResp.Result == "" {
-		return z, fmt.Errorf("cannot login: %w", ErrEmptyResult)
+		return fmt.Errorf("cannot login: %w", ErrEmptyResult)
 	}
 	z.auth = zbxResp.Result
-	return z, nil
+	return nil
 }
 
 // Logout logs out from the Zabbix API
 func (z *ZabbixAPI) Logout(ctx context.Context) error {
-	data := zbxRequestLogout{
+	data := ZbxRequestLogout{
 		JSONRPC: JSONRPC,
 		Method:  methodUserLogout,
 		Params:  make(map[string]string),

@@ -28,7 +28,8 @@ var importCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		z, err := zabbix.New(conf.ZabbixUser, conf.ZabbixPassword, conf.ZabbixEndpoint)
+		z := zabbix.New(conf.ZabbixUser, conf.ZabbixPassword, conf.ZabbixEndpoint)
+		err = z.Login(ctx)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)
