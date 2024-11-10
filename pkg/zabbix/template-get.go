@@ -60,8 +60,8 @@ type templateGetResponse struct {
 		TemplateID string `json:"templateID"`
 		Name       string `json:"name"`
 	} `json:"result"`
-	// Error is the error message when the request fails TODO
-	ID int `json:"id"`
+	ErrorMsg ErrorMsg `json:"error,omitempty"`
+	ID       int      `json:"id"`
 }
 
 // NewTemplateGetRequest returns a new TemplateGetRequest
@@ -81,6 +81,9 @@ func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*template
 	err = json.Unmarshal(body, &res)
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal response: %w", err)
+	}
+	if res.ErrorMsg != (ErrorMsg{}) {
+		return nil, fmt.Errorf("error message: %w", &res.ErrorMsg)
 	}
 	return &res, nil
 }
