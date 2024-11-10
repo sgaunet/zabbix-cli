@@ -14,22 +14,22 @@ type ZabbixAPI struct {
 	id          int // id for the JSON-RPC request - unique identifier
 }
 
-// zbxParams struct is a part of the zbxRequestLogin struct
-type zbxParams struct {
+// ZbxParams struct is a part of the zbxRequestLogin struct
+type ZbxParams struct {
 	UserName string `json:"username"`
 	Password string `json:"password"`
 }
 
-// zbxLogin struct is used to login to the Zabbix API
-type zbxRequestLogin struct {
+// ZbxLogin struct is used to login to the Zabbix API
+type ZbxRequestLogin struct {
 	JSONRPC string    `json:"jsonrpc"`
 	Method  string    `json:"method"`
-	Params  zbxParams `json:"params"`
+	Params  ZbxParams `json:"params"`
 	ID      int       `json:"id"`
 }
 
 // zbxRequestLogout struct is used to logout from the Zabbix API
-type zbxRequestLogout struct {
+type ZbxRequestLogout struct {
 	JSONRPC string            `json:"jsonrpc"`
 	Method  string            `json:"method"`
 	Params  map[string]string `json:"params"`
@@ -37,8 +37,8 @@ type zbxRequestLogout struct {
 	ID      int               `json:"id"`
 }
 
-// zbxLoginResponse struct is the response from the Zabbix API after a login request
-type zbxLoginResponse struct {
+// ZbxLoginResponse struct is the response from the Zabbix API after a login request
+type ZbxLoginResponse struct {
 	JSONRPC string `json:"jsonrpc"`
 	Result  string `json:"result"`
 	ID      int    `json:"id"`
