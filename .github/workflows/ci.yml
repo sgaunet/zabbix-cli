@@ -40,6 +40,6 @@ jobs:
       # RUN TEST HERE
     - run: go test ./... -coverprofile c.out
       # after build step
-    - run: ./cc-test-reporter after-build --prefix=github.com/sgaunet/gitlab-backup
+    - run: ./cc-test-reporter after-build --prefix=github.com/sgaunet/zabbix-cli
       # will use env var CC_TEST_REPORTER_ID
 
