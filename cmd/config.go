@@ -12,8 +12,8 @@ zabbix_user: admin
 zabbix_password: *****
 `
 
-// printConfigCmd represents the config command
-var printConfigCmd = &cobra.Command{
+// PrintConfigCmd represents the config command
+var PrintConfigCmd = &cobra.Command{
 	Use:   "config",
 	Short: "describes how to configure zabbix-cli",
 	Long:  `describes how to configure zabbix-cli`,
@@ -27,5 +27,5 @@ var printConfigCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(printConfigCmd)
+	rootCmd.AddCommand(PrintConfigCmd)
 }

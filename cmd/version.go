@@ -9,7 +9,7 @@ import (
 var version string = "development"
 
 // versionCmd represents the version command
-var versionCmd = &cobra.Command{
+var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "print version of zabbix-cli",
 	Long:  `print version of zabbix-cli`,
@@ -19,5 +19,5 @@ var versionCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(VersionCmd)
 }
