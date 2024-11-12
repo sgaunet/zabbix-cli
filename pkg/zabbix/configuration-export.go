@@ -110,7 +110,7 @@ func ExportRequestOptionXMLFormat() configurationExportRequestOption {
 }
 
 // ConfigurationExportRequest is the response struct of a configuration export request
-type configurationExportResponse struct {
+type ConfigurationExportResponse struct {
 	JSONRPC  string   `json:"jsonrpc"`
 	Result   string   `json:"result"`
 	ID       int      `json:"id"`
@@ -129,7 +129,7 @@ func (z *ZabbixAPI) Export(ctx context.Context, opt ...configurationExportReques
 		return "", fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
 
-	var res configurationExportResponse
+	var res ConfigurationExportResponse
 	err = json.Unmarshal(body, &res)
 	if err != nil {
 		return "", fmt.Errorf("cannot unmarshal response: %w", err)

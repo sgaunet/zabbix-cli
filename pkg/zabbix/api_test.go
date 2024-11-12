@@ -25,7 +25,9 @@ func TestNew(t *testing.T) {
 					ID:      1,
 				}
 				resJSON, err := json.Marshal(res)
-				require.NoError(t, err)
+				if err != nil {
+					t.Fatal(err)
+				}
 				w.Header().Add("Content-Type", "application/json")
 				fmt.Fprintln(w, string(resJSON))
 			}))
@@ -56,7 +58,9 @@ func TestNew(t *testing.T) {
 					ID:      1,
 				}
 				resJSON, err := json.Marshal(res)
-				require.NoError(t, err)
+				if err != nil {
+					t.Fatal(err)
+				}
 				w.Header().Add("Content-Type", "application/json")
 				fmt.Fprintln(w, string(resJSON))
 			}))
@@ -84,6 +88,24 @@ func TestNew(t *testing.T) {
 
 		// get request
 		client := ts.Client()
+
+		z := zabbix.New("user", "password", ts.URL)
+		require.NotNil(t, z)
+
+		z.SetHTTPClient(client)
+		err := z.Login(context.Background())
+		require.Error(t, err)
+		require.Empty(t, z.Auth())
+	})
+
+	t.Run("Login request to unavailable endpoint", func(t *testing.T) {
+		t.Parallel()
+		ts := httptest.NewTLSServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusInternalServerError)
+			}))
+		client := ts.Client()
+		ts.Close() // close the server
 
 		z := zabbix.New("user", "password", ts.URL)
 		require.NotNil(t, z)
