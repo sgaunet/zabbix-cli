@@ -47,3 +47,10 @@ tasks:
     desc: "Create release"
     cmds:
       - GITLAB_TOKEN="" goreleaser --clean
+
+  coverage:
+    desc: "Run the tests with coverage"
+    cmds:
+      - go test -coverpkg=github.com/sgaunet/zabbix-cli/cmd,github.com/sgaunet/zabbix-cli/pkg/config,github.com/sgaunet/zabbix-cli/pkg/zabbix -coverprofile=profile.cov ./...
+      - go tool cover -func profile.cov
+      - rm profile.cov
