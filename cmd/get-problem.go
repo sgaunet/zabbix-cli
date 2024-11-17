@@ -32,7 +32,7 @@ var GetProblemCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)
 		}
-		defer z.Logout(ctx) //nolint: errcheck
+		defer z.Logout(ctx) //nolint:errcheck
 
 		res, err := z.GetProblems(ctx)
 		if err != nil {
@@ -40,7 +40,7 @@ var GetProblemCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		PrettyPrintProblems(res)
+		PrettyPrintProblems(res) //nolint:errcheck
 	},
 }
 

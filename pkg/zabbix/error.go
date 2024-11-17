@@ -12,6 +12,7 @@ type ErrorMsg struct { //nolint:errname
 	Data    string `json:"data"`
 }
 
+// Error returns the error message
 func (e *ErrorMsg) Error() string {
 	return e.Message + " " + e.Data
 }

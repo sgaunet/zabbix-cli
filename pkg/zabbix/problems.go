@@ -22,8 +22,8 @@ const MethodProblemGet = "problem.get"
 // 4 - Exists;
 // 5 - Not exists.
 type zbxTagsFilterProblem struct {
-	Tag      string `json:"tag" yaml:"tag"`
-	Value    string `json:"value" yaml:"value"`
+	Tag      string `json:"tag"      yaml:"tag"`
+	Value    string `json:"value"    yaml:"value"`
 	Operator string `json:"operator" yaml:"operator"`
 }
 
@@ -42,9 +42,9 @@ type zbxParamsProblem struct {
 	Tags         []zbxTagsFilterProblem `json:"tags,omitempty"`
 	Recent       bool                   `json:"recent,omitempty"`       // true - return PROBLEM and recently RESOLVED problems (depends on Display OK triggers for N seconds) Default: false - UNRESOLVED problems only
 	EventidFrom  string                 `json:"eventid_from,omitempty"` // Return only problems with IDs greater or equal to the given ID.
-	Eventid_till string                 `json:"eventid_till,omitempty"` // Return only problems with IDs less or equal to the given ID.
-	TimeFrom     int64                  `json:"time_from,omitempty"`    //Return only problems that have been created after or at the given time.
-	TimeTill     int64                  `json:"time_till,omitempty"`    //Return only problems that have been created before or at the given time.
+	EventidTill  string                 `json:"eventid_till,omitempty"` // Return only problems with IDs less or equal to the given ID.
+	TimeFrom     int64                  `json:"time_from,omitempty"`    // Return only problems that have been created after or at the given time.
+	TimeTill     int64                  `json:"time_till,omitempty"`    // Return only problems that have been created before or at the given time.
 	// selectAcknowledges 	query 	Return an acknowledges property with the problem updates. Problem updates are sorted in reverse chronological order.
 	// The problem update object has the following properties:
 	// acknowledgeid - (string) update's ID;
@@ -155,7 +155,7 @@ func GetProblemOptionEventidFrom(eventidFrom string) GetProblemOption {
 
 func GetProblemOptionEventidTill(eventidTill string) GetProblemOption {
 	return func(g *zbxGetProblem) {
-		g.Params.Eventid_till = eventidTill
+		g.Params.EventidTill = eventidTill
 	}
 }
 
@@ -227,8 +227,10 @@ func (p *Problem) GetDuration() time.Duration {
 }
 
 func (p *Problem) GetDurationStr() string {
+	const NumberMinutesInHour = 60
+	const NumberSecondsInMinute = 60
 	durationProblem := p.GetDuration()
-	return fmt.Sprintf("%d:%02d:%02d", int(durationProblem.Hours()), int(durationProblem.Minutes())%60, int(durationProblem.Seconds())%60)
+	return fmt.Sprintf("%d:%02d:%02d", int(durationProblem.Hours()), int(durationProblem.Minutes())%NumberMinutesInHour, int(durationProblem.Seconds())%NumberSecondsInMinute)
 }
 
 func (p *Problem) GetAcknowledge() bool {
@@ -254,28 +256,11 @@ func (p *Problem) GetSuppressedStr() string {
 }
 
 func (p *Problem) GetSeverity() string {
-	// 0 - not classified;
-	// 1 - information;
-	// 2 - warning;
-	// 3 - average;
-	// 4 - high;
-	// 5 - disaster.
-	switch p.Severity {
-	case "0":
-		return "Not classified"
-	case "1":
-		return "Information"
-	case "2":
-		return "Warning"
-	case "3":
-		return "Average"
-	case "4":
-		return "High"
-	case "5":
-		return "Disaster"
-	default:
+	s, err := strconv.Atoi(p.Severity)
+	if err != nil {
 		return "Unknown"
 	}
+	return NewSeverity(s).String()
 }
 
 // zbxResultProblem represents the result of a problem.get request
@@ -286,38 +271,8 @@ type zbxResultProblem struct {
 	ID       int       `json:"id"`
 }
 
-// func convertOperator(operator string) string {
-// 	operator = strings.ToLower(operator)
-// 	switch operator {
-// 	case "like":
-// 		return "0"
-// 	case "equal":
-// 		return "1"
-// 	case "not like":
-// 		return "2"
-// 	case "not equal":
-// 		return "3"
-// 	case "exists":
-// 		return "4"
-// 	case "not exists":
-// 		return "5"
-// 	default:
-// 		return "0"
-// 	}
-// }
-
-// func convertZbxTagsFilter(tagsFilterConfig []config.ZbxTagsFilterProblemConfig) []zbxTagsFilterProblem {
-// 	zTags := make([]zbxTagsFilterProblem, len(tagsFilterConfig))
-// 	for i, zTag := range tagsFilterConfig {
-// 		zTags[i].Operator = convertOperator(zTag.Operator)
-// 		zTags[i].Value = zTag.Value
-// 		zTags[i].Tag = zTag.Tag
-// 	}
-// 	return zTags
-// }
-
+// GetProblems returns a list of problems
 func (z *ZabbixAPI) GetProblems(ctx context.Context, opts ...GetProblemOption) ([]Problem, error) {
-	// since := strconv.FormatInt(time.Now().Add(time.Duration(-z.Since*int(time.Second))).Unix(), 10)
 	payload := &zbxGetProblem{
 		JSONRPC: JSONRPC,
 		Method:  MethodProblemGet,
@@ -325,7 +280,6 @@ func (z *ZabbixAPI) GetProblems(ctx context.Context, opts ...GetProblemOption) (
 		ID:      generateUniqueID(),
 	}
 	payload.Auth = z.Auth()
-	// params := zbxParamsProblem{}
 	for _, opt := range opts {
 		opt(payload)
 	}
