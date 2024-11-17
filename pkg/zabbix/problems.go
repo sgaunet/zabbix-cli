@@ -35,8 +35,8 @@ type zbxParamsProblem struct {
 	ObjectIDs    []string               `json:"objectids,omitempty"`
 	Source       int                    `json:"source,omitempty"` // Return only problems with the given type. Refer to the problem event object page for a list of supported event types. Default: 0 - problem created by a trigger.
 	Object       int                    `json:"object,omitempty"` // Return only problems with the given object type. Refer to the problem event object page for a list of supported object types. Default: 0 - trigger.
-	Acknowledged bool                   `json:"acknowledged,omitempty"`
-	Suppressed   bool                   `json:"suppressed,omitempty"`
+	Acknowledged bool                   `json:"acknowledged"`
+	Suppressed   bool                   `json:"suppressed"`
 	Severities   []string               `json:"severities,omitempty"` // Return only problems with given event severities. Applies only if object is trigger.
 	EvalType     int                    `json:"evaltype,omitempty"`   // Rules for tag searching. Possible values: 0 - (default) And/Or;  2 - Or.
 	Tags         []zbxTagsFilterProblem `json:"tags,omitempty"`
@@ -63,6 +63,7 @@ type zbxParamsProblem struct {
 	// suppress_until - (integer) time until the problem is suppressed.
 
 	// sortfield 	string/array 	Sort the result by the given properties. Possible values are: eventid.
+	zbxCommonGet
 }
 
 type zbxGetProblem struct {
@@ -162,6 +163,54 @@ func GetProblemOptionEventidTill(eventidTill string) GetProblemOption {
 func GetProblemOptionTimeFrom(timeFrom int64) GetProblemOption {
 	return func(g *zbxGetProblem) {
 		g.Params.TimeFrom = timeFrom
+	}
+}
+
+func GetProblemOptionTimeTill(timeTill int64) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.TimeTill = timeTill
+	}
+}
+
+func GetProblemOptionCountOutput(countOutput bool) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.CountOutput = countOutput
+	}
+}
+
+func GetProblemOptionEditable(editable bool) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.Editable = editable
+	}
+}
+
+func GetProblemOptionExcludeSearch(excludeSearch bool) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.ExcludeSearch = excludeSearch
+	}
+}
+
+func GetProblemOptionLimit(limit int) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.Limit = limit
+	}
+}
+
+func GetProblemOptionPreservekeys(preservekeys bool) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.Preservekeys = preservekeys
+	}
+}
+
+func GetProblemOptionSearchByAny(searchByAny bool) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.SearchByAny = searchByAny
+	}
+}
+
+func GetProblemOptionSearchWildcardsEnabled(searchWildcardsEnabled bool) GetProblemOption {
+	return func(g *zbxGetProblem) {
+		g.Params.SearchWildcardsEnabled = searchWildcardsEnabled
 	}
 }
 
