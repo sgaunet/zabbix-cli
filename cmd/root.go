@@ -47,6 +47,9 @@ func init() {
 
 	rootCmd.AddCommand(exportCmd)
 	rootCmd.AddCommand(importCmd)
+
+	GetCmd.AddCommand(GetProblemCmd)
+	rootCmd.AddCommand(GetCmd)
 }
 
 // initConfig reads in config file and ENV variables if set.
