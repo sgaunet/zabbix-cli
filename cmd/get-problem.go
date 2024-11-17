@@ -11,6 +11,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Ack bool
+var Supp bool
+
 // GetProblemCmd represents the get problem subcommand
 var GetProblemCmd = &cobra.Command{
 	Use:   "problem",
@@ -34,7 +37,11 @@ var GetProblemCmd = &cobra.Command{
 		}
 		defer z.Logout(ctx) //nolint:errcheck
 
-		res, err := z.GetProblems(ctx)
+		var options []zabbix.GetProblemOption
+		options = append(options, zabbix.GetProblemOptionAcknowledged(Ack))
+		options = append(options, zabbix.GetProblemOptionSuppressed(Supp))
+
+		res, err := z.GetProblems(ctx, options...)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)
