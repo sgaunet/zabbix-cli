@@ -13,7 +13,7 @@ var GetCmd = &cobra.Command{
 	Long:  `get`,
 	Run: func(cmd *cobra.Command, _ []string) {
 		// print help
-		cmd.Help()
+		cmd.Help() //nolint:errcheck
 		os.Exit(1)
 	},
 }
