@@ -1,8 +1,7 @@
 [![GitHub release](https://img.shields.io/github/release/sgaunet/zabbix-cli.svg)](https://github.com/sgaunet/zabbix-cli/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sgaunet/zabbix-cli)](https://goreportcard.com/report/github.com/sgaunet/zabbix-cli)
 ![GitHub Downloads](https://img.shields.io/github/downloads/sgaunet/zabbix-cli/total)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8412fedc31a7892cd92a/maintainability)](https://codeclimate.com/github/sgaunet/zabbix-cli/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/8412fedc31a7892cd92a/test_coverage)](https://codeclimate.com/github/sgaunet/zabbix-cli/test_coverage)
+![Test Coverage](https://raw.githubusercontent.com/wiki/sgaunet/zabbix-cli/coverage-badge.svg)
 [![GoDoc](https://godoc.org/github.com/sgaunet/zabbix-cli?status.svg)](https://godoc.org/github.com/sgaunet/zabbix-cli)
 [![License](https://img.shields.io/github/license/sgaunet/zabbix-cli.svg)](LICENSE)
 
