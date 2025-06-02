@@ -1,5 +1,6 @@
 package zabbix
 
+// EventAction represents an event action type.
 type EventAction int
 
 // Event update action(s).
@@ -12,10 +13,15 @@ type EventAction int
 // This is a bitmask field; any sum of possible bitmap values is acceptable (for example, 6 for acknowledge event and add message).
 
 const (
+	// CloseProblem indicates the action to close a problem.
 	CloseProblem   EventAction = 1
+	// Acknowledge indicates the action to acknowledge an event.
 	Acknowledge    EventAction = 2
+	// AddMessage indicates the action to add a message to an event.
 	AddMessage     EventAction = 4
+	// ChangeSeverity indicates the action to change the severity of an event.
 	ChangeSeverity EventAction = 8
+	// Unacknowledge indicates the action to unacknowledge an event.
 	Unacknowledge  EventAction = 16
 )
 

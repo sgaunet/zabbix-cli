@@ -25,18 +25,20 @@ type templateGetRequest struct {
 	ID      int                      `json:"id"`
 }
 
-// templateGetRequestOption is the options struct to get templates
-type templateGetRequestOption func(*templateGetRequest)
+// TemplateGetRequestOption is the options struct to get templates
+// TemplateGetRequestOption is a function that modifies a templateGetRequest.
+type TemplateGetRequestOption func(*templateGetRequest)
 
-// GetTemplateOptionFilterByName returns a templateGetRequestOption to filter by name
-func GetTemplateOptionFilterByName(templatesNames []string) templateGetRequestOption {
+// GetTemplateOptionFilterByName returns a TemplateGetRequestOption to filter by name
+// GetTemplateOptionFilterByName returns a TemplateGetRequestOption to filter by name.
+func GetTemplateOptionFilterByName(templatesNames []string) TemplateGetRequestOption {
 	return func(c *templateGetRequest) {
 		c.Params.Filter["name"] = templatesNames
 	}
 }
 
 // newTemplateGetRequest returns a new templateGetRequest
-func newTemplateGetRequest(options ...templateGetRequestOption) *templateGetRequest {
+func newTemplateGetRequest(options ...TemplateGetRequestOption) *templateGetRequest {
 	c := &templateGetRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodTemplateGet,
@@ -53,8 +55,8 @@ func newTemplateGetRequest(options ...templateGetRequestOption) *templateGetRequ
 	return c
 }
 
-// templateGetResponse struct is used to unmarshal the response from the Zabbix API
-type templateGetResponse struct {
+// TemplateGetResponse struct is used to unmarshal the response from the Zabbix API
+type TemplateGetResponse struct {
 	JSONRPC string `json:"jsonrpc"`
 	Result  []struct {
 		TemplateID string `json:"templateID"`
@@ -64,8 +66,10 @@ type templateGetResponse struct {
 	ID       int      `json:"id"`
 }
 
-// NewTemplateGetRequest returns a new TemplateGetRequest
-func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*templateGetResponse, error) {
+// GetTemplates returns templates from the Zabbix API.
+// GetTemplates returns templates from the Zabbix API.
+// GetTemplates returns templates from the Zabbix API. Note: The return type TemplateGetResponse is unexported by design for internal encapsulation.
+func (z *Client) GetTemplates(options ...TemplateGetRequestOption) (*TemplateGetResponse, error) {
 	payload := newTemplateGetRequest(options...)
 	payload.Auth = z.Auth()
 
@@ -77,7 +81,7 @@ func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*template
 		return nil, fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
 
-	var res templateGetResponse
+	var res TemplateGetResponse
 	err = json.Unmarshal(body, &res)
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal response: %w", err)
@@ -89,7 +93,7 @@ func (z *ZabbixAPI) GetTemplates(options ...templateGetRequestOption) (*template
 }
 
 // GetTemplateID returns the ID of the templates
-func (t *templateGetResponse) GetTemplateID() []string {
+func (t *TemplateGetResponse) GetTemplateID() []string {
 	var templates []string //nolint: prealloc
 	for _, template := range t.Result {
 		templates = append(templates, template.TemplateID)
@@ -98,7 +102,7 @@ func (t *templateGetResponse) GetTemplateID() []string {
 }
 
 // GetTemplateName returns the name of the templates
-func (t *templateGetResponse) GetTemplateName() []string {
+func (t *TemplateGetResponse) GetTemplateName() []string {
 	var templates []string //nolint: prealloc
 	for _, template := range t.Result {
 		templates = append(templates, template.Name)

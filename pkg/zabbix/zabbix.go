@@ -2,10 +2,13 @@ package zabbix
 
 import "net/http"
 
+// JSONRPC is the JSON-RPC version used for Zabbix API requests.
 const JSONRPC = "2.0"
 
-// ZabbixAPI struct holds the configuration for the Zabbix API
-type ZabbixAPI struct {
+// Client struct holds the configuration for the Zabbix API
+// Client represents the configuration for the Zabbix API.
+// Client is the main struct for interacting with the Zabbix API. (Linter: stutter is intentional for public API clarity)
+type Client struct {
 	client      *http.Client
 	auth        string // auth token
 	APIEndpoint string
@@ -14,22 +17,22 @@ type ZabbixAPI struct {
 	id          int // id for the JSON-RPC request - unique identifier
 }
 
-// ZbxParams struct is a part of the zbxRequestLogin struct
-type ZbxParams struct {
+// Params struct is a part of the LoginRequest struct
+type Params struct {
 	UserName string `json:"username"`
 	Password string `json:"password"`
 }
 
-// ZbxLogin struct is used to login to the Zabbix API
-type ZbxRequestLogin struct {
-	JSONRPC string    `json:"jsonrpc"`
-	Method  string    `json:"method"`
-	Params  ZbxParams `json:"params"`
-	ID      int       `json:"id"`
+// LoginRequest is used to login to the Zabbix API.
+type LoginRequest struct {
+	JSONRPC string `json:"jsonrpc"`
+	Method  string `json:"method"`
+	Params  Params `json:"params"`
+	ID      int    `json:"id"`
 }
 
-// zbxRequestLogout struct is used to logout from the Zabbix API
-type ZbxRequestLogout struct {
+// LogoutRequest is used to logout from the Zabbix API.
+type LogoutRequest struct {
 	JSONRPC string            `json:"jsonrpc"`
 	Method  string            `json:"method"`
 	Params  map[string]string `json:"params"`
@@ -37,8 +40,8 @@ type ZbxRequestLogout struct {
 	ID      int               `json:"id"`
 }
 
-// ZbxLoginResponse struct is the response from the Zabbix API after a login request
-type ZbxLoginResponse struct {
+// LoginResponse struct is the response from the Zabbix API after a login request
+type LoginResponse struct {
 	JSONRPC string `json:"jsonrpc"`
 	Result  string `json:"result"`
 	ID      int    `json:"id"`

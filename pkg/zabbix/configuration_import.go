@@ -11,8 +11,8 @@ import (
 
 const methodConfigurationImport = "configuration.import"
 
-// configurationImportRequest is the request body for configuration.import
-// it's the same as configuration.importcompare
+// configurationImportRequest is the request body for configuration.import.
+// it's the same as configuration.importcompare.
 type configurationImportRequest configurationImportCompareRequest
 
 func newConfigurationImportRequest(source string) *configurationImportRequest {
@@ -36,7 +36,8 @@ type configurationImportResponse struct {
 	ID       int      `json:"id"`
 }
 
-func (z *ZabbixAPI) Import(ctx context.Context, source string) (bool, error) {
+// Import imports configuration from the given source string.
+func (z *Client) Import(ctx context.Context, source string) (bool, error) {
 	c := newConfigurationImportRequest(source)
 	// initialize auth token
 	c.Auth = z.Auth()
