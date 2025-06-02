@@ -2,6 +2,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/sgaunet/zabbix-cli)](https://goreportcard.com/report/github.com/sgaunet/zabbix-cli)
 ![GitHub Downloads](https://img.shields.io/github/downloads/sgaunet/zabbix-cli/total)
 ![Test Coverage](https://raw.githubusercontent.com/wiki/sgaunet/zabbix-cli/coverage-badge.svg)
+![Coverage CI](https://github.com/sgaunet/zabbix-cli/actions/workflows/coverage.yml/badge.svg)
 [![GoDoc](https://godoc.org/github.com/sgaunet/zabbix-cli?status.svg)](https://godoc.org/github.com/sgaunet/zabbix-cli)
 [![License](https://img.shields.io/github/license/sgaunet/zabbix-cli.svg)](LICENSE)
 
