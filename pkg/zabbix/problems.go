@@ -12,7 +12,7 @@ import (
 // MethodProblemGet is the Zabbix API method for getting problems.
 const MethodProblemGet = "problem.get"
 
-// Return only problems with given tags. Exact match by tag and case-insensitive search by value and operator.
+// FilterProblemTags returns only problems with given tags. Exact match by tag and case-insensitive search by value and operator.
 // Format: [{"tag": "<tag>", "value": "<value>", "operator": "<operator>"}, ...].
 // An empty array returns all problems.
 // Possible operator types:
@@ -67,6 +67,7 @@ type ProblemParams struct {
 	CommonGetParams
 }
 
+// GetProblemRequest represents a request to retrieve problem information from Zabbix API.
 type GetProblemRequest struct {
 	JSONRPC string        `json:"jsonrpc"`
 	Method  string        `json:"method"`

@@ -10,6 +10,7 @@ import (
 // MethodEventAcknowledge is the Zabbix API method for event acknowledgement.
 const MethodEventAcknowledge = "event.acknowledge"
 
+// EventsAcknowledgeParams contains parameters for acknowledging Zabbix events.
 type EventsAcknowledgeParams struct {
 	Eventids []string `json:"eventids"`
 
@@ -29,6 +30,7 @@ type EventsAcknowledgeParams struct {
 	Severity Severity `json:"severity"` // Required, if action contains 'change severity' flag.
 }
 
+// EventAcknowledgeRequest represents a request to acknowledge Zabbix events.
 type EventAcknowledgeRequest struct {
 	JSONRPC string                  `json:"jsonrpc"`
 	Method  string                  `json:"method"`

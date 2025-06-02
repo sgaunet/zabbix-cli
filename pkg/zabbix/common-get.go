@@ -2,6 +2,7 @@ package zabbix
 
 // More infos here: https://www.zabbix.com/documentation/6.0/en/manual/api/reference_commentary#common-get-method-parameters
 
+// CommonGetParams represents common parameters used in Zabbix API get requests.
 type CommonGetParams struct {
 	CountOutput   bool `json:"countOutput,omitempty"`
 	Editable      bool `json:"editable,omitempty"`
