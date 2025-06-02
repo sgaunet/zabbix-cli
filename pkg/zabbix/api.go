@@ -38,10 +38,10 @@ func (z *Client) SetHTTPClient(client *http.Client) {
 // Login logs in to the Zabbix API.
 // Don't forget to call Logout() to logout.
 func (z *Client) Login(ctx context.Context) error {
-	data := ZbxRequestLogin{
+	data := LoginRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodUserLogin,
-		Params: ZbxParams{
+		Params: Params{
 			UserName: z.User,
 			Password: z.Password,
 		},
@@ -55,7 +55,7 @@ func (z *Client) Login(ctx context.Context) error {
 	if statusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
 	}
-	var zbxResp ZbxLoginResponse
+	var zbxResp LoginResponse
 	err = json.Unmarshal(resp, &zbxResp)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal response: %w - %s", err, string(resp))
@@ -69,7 +69,7 @@ func (z *Client) Login(ctx context.Context) error {
 
 // Logout logs out from the Zabbix API.
 func (z *Client) Logout(ctx context.Context) error {
-	data := ZbxRequestLogout{
+	data := LogoutRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodUserLogout,
 		Params:  make(map[string]string),
