@@ -23,7 +23,7 @@ tasks:
   linter:
     desc: "Run linter"
     cmds:
-      - golangci-lint run -c .github/linters/.golangci.yml
+      - golangci-lint run
 
   tests:
     desc: "Run tests"
