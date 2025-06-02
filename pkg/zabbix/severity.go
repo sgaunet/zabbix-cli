@@ -20,6 +20,11 @@ const (
 	Disaster
 )
 
+// NewSeverity returns a Severity from an int value.
+func NewSeverity(severity int) Severity {
+	return Severity(severity)
+}
+
 // String returns the string representation of a severity.
 func (s Severity) String() string {
 	switch s {
@@ -78,8 +83,4 @@ func GetSeverityString(severity string) Severity {
 	default:
 		return NotClassified
 	}
-}
-
-func NewSeverity(severity int) Severity {
-	return GetSeverity(severity)
 }
