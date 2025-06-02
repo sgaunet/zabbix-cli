@@ -19,7 +19,7 @@ func TestNew(t *testing.T) {
 		t.Parallel()
 		ts := httptest.NewTLSServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				res := zabbix.ZbxLoginResponse{
+				res := zabbix.LoginResponse{
 					JSONRPC: zabbix.JSONRPC,
 					Result:  "auth_token",
 					ID:      1,
@@ -52,7 +52,7 @@ func TestNew(t *testing.T) {
 		t.Parallel()
 		ts := httptest.NewTLSServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				res := zabbix.ZbxLoginResponse{
+				res := zabbix.LoginResponse{
 					JSONRPC: zabbix.JSONRPC,
 					Result:  "",
 					ID:      1,
@@ -153,7 +153,7 @@ func TestLogout(t *testing.T) {
 		// Create a test server that will handle the login request
 		loginTS := httptest.NewTLSServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				res := zabbix.ZbxLoginResponse{
+				res := zabbix.LoginResponse{
 					JSONRPC: zabbix.JSONRPC,
 					Result:  "auth_token",
 					ID:      1,
@@ -168,11 +168,11 @@ func TestLogout(t *testing.T) {
 		client := loginTS.Client()
 		z := zabbix.New("user", "password", loginTS.URL)
 		z.SetHTTPClient(client)
-		
+
 		// Login to set the auth token
 		err := z.Login(context.Background())
 		require.NoError(t, err)
-		
+
 		// Update the client to use the logout test server
 		z.SetHTTPClient(ts.Client())
 
@@ -189,7 +189,7 @@ func TestLogout(t *testing.T) {
 				// For login request
 				if !loginCalled {
 					loginCalled = true
-					res := zabbix.ZbxLoginResponse{
+					res := zabbix.LoginResponse{
 						JSONRPC: zabbix.JSONRPC,
 						Result:  "auth_token",
 						ID:      1,
@@ -235,7 +235,7 @@ func TestLogout(t *testing.T) {
 				// For login request
 				if !loginCalled {
 					loginCalled = true
-					res := zabbix.ZbxLoginResponse{
+					res := zabbix.LoginResponse{
 						JSONRPC: zabbix.JSONRPC,
 						Result:  "auth_token",
 						ID:      1,
