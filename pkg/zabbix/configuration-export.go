@@ -11,8 +11,8 @@ import (
 const methodConfigurationExport = "configuration.export"
 const defaultConfigurationExportFormat = "yaml"
 
-// configurationExportOptions is the options struct to export configuration
-type configurationExportOptions struct {
+// ConfigurationExportOptions is the options struct to export configuration.
+type ConfigurationExportOptions struct {
 	GroupsID     []string `json:"groups,omitempty"`     // (array) IDs of host groups to export.
 	HostsID      []string `json:"hosts,omitempty"`      // (array) IDs of hosts to export.
 	ImagesID     []string `json:"images,omitempty"`     // (array) IDs of images to export.
@@ -21,29 +21,31 @@ type configurationExportOptions struct {
 	TemplatesID  []string `json:"templates,omitempty"`  // (array) IDs of templates to export.
 }
 
-// configurationExportParams is the params struct to export configuration
-type configurationExportParams struct {
-	Options configurationExportOptions `json:"options"`
+// ConfigurationExportParams is the params struct to export configuration.
+type ConfigurationExportParams struct {
+	Options ConfigurationExportOptions `json:"options"`
 	Format  string                     `json:"format"`
 }
 
-// configurationExportRequest is the request struct to export configuration
-type configurationExportRequest struct {
+// ConfigurationExportRequest is the request struct to export configuration.
+type ConfigurationExportRequest struct {
 	JSONRPC string                    `json:"jsonrpc"`
 	Method  string                    `json:"method"`
-	Params  configurationExportParams `json:"params"`
+	Params  ConfigurationExportParams `json:"params"`
 	Auth    string                    `json:"auth"`
 	ID      int                       `json:"id"`
 }
 
-type configurationExportRequestOption func(*configurationExportRequest)
+// ConfigurationExportRequestOption is a function that modifies a ConfigurationExportRequest.
+type ConfigurationExportRequestOption func(*ConfigurationExportRequest)
 
-func NewConfigurationExportRequest(options ...configurationExportRequestOption) *configurationExportRequest {
-	c := &configurationExportRequest{
+// NewConfigurationExportRequest creates a new configuration export request. Note: The return type ConfigurationExportRequest is unexported by design for internal encapsulation.
+func NewConfigurationExportRequest(options ...ConfigurationExportRequestOption) *ConfigurationExportRequest {
+	c := &ConfigurationExportRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodConfigurationExport,
-		Params: configurationExportParams{
-			Options: configurationExportOptions{},
+		Params: ConfigurationExportParams{
+			Options: ConfigurationExportOptions{},
 			Format:  defaultConfigurationExportFormat,
 		},
 		Auth: "",
@@ -55,61 +57,73 @@ func NewConfigurationExportRequest(options ...configurationExportRequestOption) 
 	return c
 }
 
-func ExportRequestOptionGroupsID(groupsID []string) configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionGroupsID returns a ConfigurationExportRequestOption for groups.
+func ExportRequestOptionGroupsID(groupsID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Options.GroupsID = groupsID
 	}
 }
 
-func ExportRequestOptionHostsID(hostsID []string) configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionHostsID returns a ConfigurationExportRequestOption for hosts.
+func ExportRequestOptionHostsID(hostsID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Options.HostsID = hostsID
 	}
 }
 
-func ExportRequestOptionImagesID(imagesID []string) configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionImagesID returns a ConfigurationExportRequestOption for images.
+func ExportRequestOptionImagesID(imagesID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Options.ImagesID = imagesID
 	}
 }
 
-func ExportRequestOptionMapsID(mapsID []string) configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionMapsID returns a ConfigurationExportRequestOption for maps.
+func ExportRequestOptionMapsID(mapsID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Options.MapsID = mapsID
 	}
 }
 
-func ExportRequestOptionMediaTypesID(mediaTypesID []string) configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionMediaTypesID returns a ConfigurationExportRequestOption for media types.
+func ExportRequestOptionMediaTypesID(mediaTypesID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Options.MediaTypesID = mediaTypesID
 	}
 }
 
-func ExportRequestOptionTemplatesID(templatesID []string) configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionTemplatesID returns a ConfigurationExportRequestOption for templates.
+func ExportRequestOptionTemplatesID(templatesID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Options.TemplatesID = templatesID
 	}
 }
 
-func ExportRequestOptionYAMLFormat() configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionYAMLFormat returns a ConfigurationExportRequestOption for YAML format.
+// ExportRequestOptionYAMLFormat returns a ConfigurationExportRequestOption for YAML format.
+func ExportRequestOptionYAMLFormat() ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Format = "yaml"
 	}
 }
 
-func ExportRequestOptionJSONFormat() configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionJSONFormat returns a ConfigurationExportRequestOption for JSON format.
+// ExportRequestOptionJSONFormat returns a ConfigurationExportRequestOption for JSON format.
+func ExportRequestOptionJSONFormat() ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Format = "json"
 	}
 }
 
-func ExportRequestOptionXMLFormat() configurationExportRequestOption {
-	return func(c *configurationExportRequest) {
+// ExportRequestOptionXMLFormat returns a ConfigurationExportRequestOption for XML format.
+// ExportRequestOptionXMLFormat returns a ConfigurationExportRequestOption for XML format.
+func ExportRequestOptionXMLFormat() ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
 		c.Params.Format = "xml"
 	}
 }
 
-// ConfigurationExportRequest is the response struct of a configuration export request
+// ConfigurationExportResponse is the response struct of a configuration export request.
 type ConfigurationExportResponse struct {
 	JSONRPC  string   `json:"jsonrpc"`
 	Result   string   `json:"result"`
@@ -117,7 +131,8 @@ type ConfigurationExportResponse struct {
 	ErrorMsg ErrorMsg `json:"error,omitempty"`
 }
 
-func (z *ZabbixAPI) Export(ctx context.Context, opt ...configurationExportRequestOption) (string, error) {
+// Export exports the configuration using the provided options.
+func (z *Client) Export(ctx context.Context, opt ...ConfigurationExportRequestOption) (string, error) {
 	c := NewConfigurationExportRequest(opt...)
 	// initialize auth token
 	c.Auth = z.Auth()
