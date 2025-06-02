@@ -1,3 +1,4 @@
+// Package zabbix provides the core Zabbix API client implementation.
 package zabbix
 
 import (
@@ -10,16 +11,16 @@ import (
 	"time"
 )
 
-// defaultTimeout is the default timeout for the HTTP client
+// defaultTimeout is the default timeout for the HTTP client.
 const defaultTimeout = 5 * time.Second
 
 const methodUserLogin = "user.login"
 const methodUserLogout = "user.logout"
 
-// New creates a new ZabbixAPI object
-// The default timeout is 5 seconds
-func New(user, password, apiEndpoint string) ZabbixAPI {
-	return ZabbixAPI{
+// New creates a new Client object
+// The default timeout is 5 seconds.
+func New(user, password, apiEndpoint string) Client {
+	return Client{
 		APIEndpoint: apiEndpoint,
 		User:        user,
 		Password:    password,
@@ -29,14 +30,14 @@ func New(user, password, apiEndpoint string) ZabbixAPI {
 	}
 }
 
-// SetHTTPClient sets the HTTP client
-func (z *ZabbixAPI) SetHTTPClient(client *http.Client) {
+// SetHTTPClient sets the HTTP client.
+func (z *Client) SetHTTPClient(client *http.Client) {
 	z.client = client
 }
 
-// Login logs in to the Zabbix API
-// Don't forget to call Logout() to logout
-func (z *ZabbixAPI) Login(ctx context.Context) error {
+// Login logs in to the Zabbix API.
+// Don't forget to call Logout() to logout.
+func (z *Client) Login(ctx context.Context) error {
 	data := ZbxRequestLogin{
 		JSONRPC: JSONRPC,
 		Method:  methodUserLogin,
@@ -66,8 +67,8 @@ func (z *ZabbixAPI) Login(ctx context.Context) error {
 	return nil
 }
 
-// Logout logs out from the Zabbix API
-func (z *ZabbixAPI) Logout(ctx context.Context) error {
+// Logout logs out from the Zabbix API.
+func (z *Client) Logout(ctx context.Context) error {
 	data := ZbxRequestLogout{
 		JSONRPC: JSONRPC,
 		Method:  methodUserLogout,
@@ -88,24 +89,20 @@ func (z *ZabbixAPI) Logout(ctx context.Context) error {
 
 // Auth returns the auth token
 // that is used to authenticate
-// This token is initialized during the login process
-func (z *ZabbixAPI) Auth() string {
+// This token is initialized during the login process.
+func (z *Client) Auth() string {
 	return z.auth
 }
 
-// postRequest sends a POST request to the Zabbix API
-// It returns the status code, the response body and an error if any
-func (z *ZabbixAPI) postRequest(ctx context.Context, payload interface{}) (int, []byte, error) {
+// postRequest sends a POST request to the Zabbix API.
+// It returns the status code, the response body and an error if any.
+func (z *Client) postRequest(ctx context.Context, payload interface{}) (int, []byte, error) {
 	return z.request(ctx, http.MethodPost, payload)
 }
 
-// func (z *ZabbixAPI) getRequest(ctx context.Context, payload interface{}) (int, []byte, error) {
-// 	return z.request(ctx, http.MethodGet, c)
-// }
-
-// request sends a request to the Zabbix API
-// It returns the status code, the response body and an error if any
-func (z *ZabbixAPI) request(ctx context.Context, method string, payload interface{}) (int, []byte, error) {
+// request sends a request to the Zabbix API.
+// It returns the status code, the response body and an error if any.
+func (z *Client) request(ctx context.Context, method string, payload interface{}) (int, []byte, error) {
 	postBody, err := json.Marshal(payload)
 	if err != nil {
 		return 0, nil, fmt.Errorf("cannot marshal data: %w", err)
