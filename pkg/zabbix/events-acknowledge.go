@@ -7,9 +7,10 @@ import (
 	"net/http"
 )
 
+// MethodEventAcknowledge is the Zabbix API method for event acknowledgement.
 const MethodEventAcknowledge = "event.acknowledge"
 
-type zbxEventsAcknowledgeParams struct {
+type EventsAcknowledgeParams struct {
 	Eventids []string `json:"eventids"`
 
 	// Event update action(s).
@@ -28,44 +29,48 @@ type zbxEventsAcknowledgeParams struct {
 	Severity Severity `json:"severity"` // Required, if action contains 'change severity' flag.
 }
 
-type zbxEventAcknowledge struct {
-	JSONRPC string                     `json:"jsonrpc"`
-	Method  string                     `json:"method"`
-	Params  zbxEventsAcknowledgeParams `json:"params"`
-	Auth    string                     `json:"auth"`
-	ID      int                        `json:"id"`
+type EventAcknowledgeRequest struct {
+	JSONRPC string                  `json:"jsonrpc"`
+	Method  string                  `json:"method"`
+	Params  EventsAcknowledgeParams `json:"params"`
+	Auth    string                  `json:"auth"`
+	ID      int                     `json:"id"`
 }
 
-type zbxEventAcknowledgeOption func(*zbxEventAcknowledge)
+// EventAcknowledgeRequestOption is a function that modifies a EventAcknowledgeRequest.
+type EventAcknowledgeRequestOption func(*EventAcknowledgeRequest)
 
 // WithSeverity sets the severity of the event.
-func WithSeverity(severity Severity) zbxEventAcknowledgeOption {
-	return func(e *zbxEventAcknowledge) {
+// WithSeverity returns a EventAcknowledgeRequestOption that sets the severity.
+func WithSeverity(severity Severity) EventAcknowledgeRequestOption {
+	return func(e *EventAcknowledgeRequest) {
 		e.Params.Severity = severity
 	}
 }
 
-// WithAction sets the action to perform on the event.
-func WithActions(action ...EventAction) zbxEventAcknowledgeOption {
+// WithActions sets the actions to perform on the event.
+// WithActions returns a EventAcknowledgeRequestOption that sets the actions.
+func WithActions(action ...EventAction) EventAcknowledgeRequestOption {
 	actions := NewEventAction(action...)
-	return func(e *zbxEventAcknowledge) {
+	return func(e *EventAcknowledgeRequest) {
 		e.Params.Action = actions
 	}
 }
 
 // WithMessage sets the message to add to the event.
-func WithMessage(message string) zbxEventAcknowledgeOption {
-	return func(e *zbxEventAcknowledge) {
+// WithMessage returns a EventAcknowledgeRequestOption that sets the message.
+func WithMessage(message string) EventAcknowledgeRequestOption {
+	return func(e *EventAcknowledgeRequest) {
 		e.Params.Message = message
 	}
 }
 
 // newEventAcknowledgeRequest creates a new event acknowledge request.
-func newEventAcknowledgeRequest(eventids []string, opts ...zbxEventAcknowledgeOption) *zbxEventAcknowledge {
-	req := &zbxEventAcknowledge{
+func newEventAcknowledgeRequest(eventids []string, opts ...EventAcknowledgeRequestOption) *EventAcknowledgeRequest {
+	req := &EventAcknowledgeRequest{
 		JSONRPC: JSONRPC,
 		Method:  MethodEventAcknowledge,
-		Params: zbxEventsAcknowledgeParams{
+		Params: EventsAcknowledgeParams{
 			Eventids: eventids,
 		},
 	}
@@ -75,6 +80,7 @@ func newEventAcknowledgeRequest(eventids []string, opts ...zbxEventAcknowledgeOp
 	return req
 }
 
+// EventAcknowledgeResponse represents the response from an event acknowledgement.
 type EventAcknowledgeResponse struct {
 	JSONRPC string `json:"jsonrpc"`
 	Result  struct {
@@ -84,7 +90,8 @@ type EventAcknowledgeResponse struct {
 	ErrorMsg ErrorMsg `json:"error,omitempty"`
 }
 
-func (z *ZabbixAPI) AcknowledgeEvents(ctx context.Context, eventsID []string, opts ...zbxEventAcknowledgeOption) ([]int, error) {
+// AcknowledgeEvents acknowledges events with the specified options.
+func (z *Client) AcknowledgeEvents(ctx context.Context, eventsID []string, opts ...EventAcknowledgeRequestOption) ([]int, error) {
 	payload := newEventAcknowledgeRequest(eventsID, opts...)
 	payload.Auth = z.auth
 	payload.ID = z.id
