@@ -36,6 +36,15 @@ func Execute() {
 }
 
 func init() {
+	cobra.OnInitialize(func() {
+		if err := initConfig(); err != nil {
+			// It's common to os.Exit(1) or panic here if config is essential and fails to load.
+			// For now, let's print the error to stderr. Commands should check if conf is nil.
+			fmt.Fprintf(os.Stderr, "Error initializing config: %v\n", err)
+			// os.Exit(1) // Or handle more gracefully depending on desired behavior
+		}
+	})
+
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "default", "configuration file (default is $HOME/.config/zabbix-cli/default.yaml)")
 

@@ -17,3 +17,7 @@ var GetCmd = &cobra.Command{
 		os.Exit(1)
 	},
 }
+
+func init() {
+	GetCmd.AddCommand(GetHostGroupCmd) // GetHostGroupCmd is defined in get-hostgroup.go
+}
