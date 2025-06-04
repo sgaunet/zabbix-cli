@@ -223,7 +223,7 @@ func TestLogout(t *testing.T) {
 		// Logout should fail with HTTP error
 		err = z.Logout(context.Background())
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "unexpected status code: 500")
+		require.EqualError(t, err, "unexpected status code 500: wrong http code")
 	})
 
 	t.Run("Logout request error", func(t *testing.T) {
@@ -267,3 +267,135 @@ func TestLogout(t *testing.T) {
 		require.Contains(t, err.Error(), "cannot do request")
 	})
 }
+
+func TestHostGroupGet(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	t.Run("HostGroupGet success", func(t *testing.T) {
+		t.Parallel()
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodPost, r.Method)
+			var req zabbix.HostGroupGetRequest
+			err := json.NewDecoder(r.Body).Decode(&req)
+			require.NoError(t, err)
+			require.Equal(t, "test_auth_token", req.Auth)
+			require.Equal(t, 123, req.ID)
+
+			resp := zabbix.HostGroupGetResponse{
+				JSONRPC: zabbix.JSONRPC,
+				Result: []zabbix.HostGroup{
+					{GroupID: "1", Name: "Linux servers", Internal: "0"},
+					{GroupID: "2", Name: "Windows servers", Internal: "0"},
+				},
+				ID: 123,
+			}
+			jsonResp, _ := json.Marshal(resp)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintln(w, string(jsonResp))
+		}))
+		defer ts.Close()
+
+		z := zabbix.New("user", "password", ts.URL)
+		z.SetHTTPClient(ts.Client())
+
+		hgRequest := zabbix.NewGetAllHostGroupsRequest(
+			zabbix.WithHostGroupGetAuth("test_auth_token"),
+			zabbix.WithHostGroupGetID(123),
+		)
+
+		response, err := z.HostGroupGet(ctx, hgRequest)
+		require.NoError(t, err)
+		require.NotNil(t, response)
+		require.Len(t, response.Result, 2)
+		require.Equal(t, "Linux servers", response.Result[0].Name)
+		require.Nil(t, response.Error)
+	})
+
+	t.Run("HostGroupGet API error", func(t *testing.T) {
+		t.Parallel()
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			resp := zabbix.HostGroupGetResponse{
+				JSONRPC: zabbix.JSONRPC,
+				Error: &zabbix.Error{
+					Code:    -32602,
+					Message: "Invalid params.",
+					Data:    "Invalid parameter \"/output\": value must be one of \"extend\", \"refer\", \"selectParent\", ...",
+				},
+				ID: 123,
+			}
+			jsonResp, _ := json.Marshal(resp)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK) // Zabbix API errors are often returned with HTTP 200 OK
+			fmt.Fprintln(w, string(jsonResp))
+		}))
+		defer ts.Close()
+
+		z := zabbix.New("user", "password", ts.URL)
+		z.SetHTTPClient(ts.Client())
+
+		hgRequest := zabbix.NewGetAllHostGroupsRequest(
+			zabbix.WithHostGroupGetAuth("test_auth_token"),
+			zabbix.WithHostGroupGetID(123),
+		)
+
+		response, err := z.HostGroupGet(ctx, hgRequest)
+		require.Error(t, err)
+		require.Nil(t, response)
+		zbxErr, ok := err.(*zabbix.Error)
+		require.True(t, ok, "error should be of type *zabbix.Error")
+		require.Equal(t, -32602, zbxErr.Code)
+		require.Contains(t, zbxErr.Data, "Invalid parameter")
+	})
+
+	t.Run("HostGroupGet HTTP error", func(t *testing.T) {
+		t.Parallel()
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, `{"jsonrpc": "2.0", "error": {"code": -32099, "message": "Internal error", "data": "Server is experiencing issues."}, "id": 123}`)
+		}))
+		defer ts.Close()
+
+		z := zabbix.New("user", "password", ts.URL)
+		z.SetHTTPClient(ts.Client())
+
+		hgRequest := zabbix.NewGetAllHostGroupsRequest(
+			zabbix.WithHostGroupGetAuth("test_auth_token"),
+			zabbix.WithHostGroupGetID(123),
+		)
+
+		response, err := z.HostGroupGet(ctx, hgRequest)
+		require.Error(t, err)
+		require.Nil(t, response)
+		require.EqualError(t, err, "Zabbix API error (Code: -32099): Internal error - Server is experiencing issues.")
+		// Check if the Zabbix error is parsed from the body even on HTTP error
+		require.Contains(t, err.Error(), "Internal error") 
+	})
+
+	t.Run("HostGroupGet malformed JSON response", func(t *testing.T) {
+		t.Parallel()
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintln(w, "this is not valid json")
+		}))
+		defer ts.Close()
+
+		z := zabbix.New("user", "password", ts.URL)
+		z.SetHTTPClient(ts.Client())
+
+		hgRequest := zabbix.NewGetAllHostGroupsRequest(
+			zabbix.WithHostGroupGetAuth("test_auth_token"),
+			zabbix.WithHostGroupGetID(123),
+		)
+
+		response, err := z.HostGroupGet(ctx, hgRequest)
+		require.Error(t, err)
+		require.Nil(t, response)
+		require.Contains(t, err.Error(), "cannot unmarshal hostgroup.get response")
+	})
+}
+

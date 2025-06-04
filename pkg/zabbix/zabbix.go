@@ -1,6 +1,10 @@
 package zabbix
 
-import "net/http"
+import (
+	"net/http"
+	// "math/rand" // For a more robust unique ID generator later
+	// "time"      // For a more robust unique ID generator later
+)
 
 // JSONRPC is the JSON-RPC version used for Zabbix API requests.
 const JSONRPC = "2.0"
@@ -35,7 +39,7 @@ type LoginRequest struct {
 type LogoutRequest struct {
 	JSONRPC string            `json:"jsonrpc"`
 	Method  string            `json:"method"`
-	Params  map[string]string `json:"params"`
+	Params  []interface{}     `json:"params"` // Must be an empty array for logout
 	Auth    string            `json:"auth"`
 	ID      int               `json:"id"`
 }

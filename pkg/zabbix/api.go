@@ -53,7 +53,7 @@ func (z *Client) Login(ctx context.Context) error {
 		return fmt.Errorf("cannot do request: %w", err)
 	}
 	if statusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
+		return fmt.Errorf("unexpected status code %d: %w", statusCode, ErrWrongHTTPCode)
 	}
 	var zbxResp LoginResponse
 	err = json.Unmarshal(resp, &zbxResp)
@@ -61,7 +61,7 @@ func (z *Client) Login(ctx context.Context) error {
 		return fmt.Errorf("cannot unmarshal response: %w - %s", err, string(resp))
 	}
 	if zbxResp.Result == "" {
-		return fmt.Errorf("cannot login: %w", ErrEmptyResult)
+		return fmt.Errorf("login failed, empty auth token: %w", ErrEmptyResult)
 	}
 	z.auth = zbxResp.Result
 	return nil
@@ -72,8 +72,8 @@ func (z *Client) Logout(ctx context.Context) error {
 	data := LogoutRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodUserLogout,
-		Params:  make(map[string]string),
-		ID:      z.id,
+		Params:  make([]interface{}, 0),
+		ID:      generateUniqueID(),
 		Auth:    z.auth,
 	}
 
@@ -82,13 +82,48 @@ func (z *Client) Logout(ctx context.Context) error {
 		return fmt.Errorf("cannot do request: %w", err)
 	}
 	if statusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d (%w)", statusCode, ErrWrongHTTPCode)
+		return fmt.Errorf("unexpected status code %d: %w", statusCode, ErrWrongHTTPCode)
 	}
 	return nil
 }
 
+// HostGroupGet sends a hostgroup.get request to the Zabbix API.
+// The request object should be fully populated by the caller, including Auth and ID.
+func (z *Client) HostGroupGet(ctx context.Context, request *HostGroupGetRequest) (*HostGroupGetResponse, error) {
+	statusCode, respBody, err := z.postRequest(ctx, request)
+	if err != nil {
+		return nil, fmt.Errorf("API request failed for hostgroup.get: %w", err)
+	}
+
+	if statusCode != http.StatusOK {
+		// Try to unmarshal the response body as a Zabbix JSON-RPC error object.
+		// This is because Zabbix might return a standard error structure even for non-200 HTTP responses.
+		var zbxErrorResponse struct {
+			Error *Error `json:"error,omitempty"`
+		}
+		if unmarshalErr := json.Unmarshal(respBody, &zbxErrorResponse); unmarshalErr == nil && zbxErrorResponse.Error != nil && zbxErrorResponse.Error.Code != 0 {
+			// If we successfully parsed a Zabbix error, return it directly.
+			return nil, zbxErrorResponse.Error
+		}
+		// If we couldn't parse a specific Zabbix error, return a generic HTTP error.
+		return nil, fmt.Errorf("API request for hostgroup.get returned HTTP status %d and unexpected response body: %s", statusCode, string(respBody))
+	}
+
+	var response HostGroupGetResponse
+	err = json.Unmarshal(respBody, &response)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal hostgroup.get response: %w - %s", err, string(respBody))
+	}
+
+	if response.Error != nil && response.Error.Code != 0 {
+		return nil, response.Error // response.Error already implements the error interface
+	}
+
+	return &response, nil
+}
+
 // Auth returns the auth token
-// that is used to authenticate
+// that is used to authenticate.
 // This token is initialized during the login process.
 func (z *Client) Auth() string {
 	return z.auth
