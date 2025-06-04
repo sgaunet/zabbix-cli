@@ -222,7 +222,7 @@ func GetProblemOptionLimit(limit int) GetProblemOption {
 // GetProblemOptionPreservekeys sets the preserve keys flag as a filter option.
 func GetProblemOptionPreservekeys(preservekeys bool) GetProblemOption {
 	return func(g *GetProblemRequest) {
-		g.Params.Preservekeys = preservekeys
+		g.Params.PreserveKeys = preservekeys // Corrected field name to PreserveKeys
 	}
 }
 
@@ -347,10 +347,10 @@ func (p *Problem) GetSeverity() string {
 
 // ResultProblem represents the result of a problem.get request.
 type ResultProblem struct {
-	JSONRPC  string    `json:"jsonrpc"`
-	Result   []Problem `json:"result"`
-	ErrorMsg ErrorMsg  `json:"error,omitempty"`
-	ID       int       `json:"id"`
+	JSONRPC string      `json:"jsonrpc"`
+	Result  []Problem   `json:"result"`
+	Error   *Error      `json:"error,omitempty"` // Changed to pointer type *Error
+	ID      int         `json:"id"`
 }
 
 // GetProblems returns a list of problems.
@@ -380,8 +380,8 @@ func (z *Client) GetProblems(ctx context.Context, opts ...GetProblemOption) ([]P
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(body))
 	}
-	if res.ErrorMsg != (ErrorMsg{}) {
-		return nil, fmt.Errorf("error message: %w", &res.ErrorMsg)
+	if res.Error != nil && res.Error.Code != 0 {
+		return nil, res.Error // Return the Error struct directly
 	}
 	return res.Result, nil
 }

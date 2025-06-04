@@ -180,8 +180,8 @@ func TestGetProblemOptionLimit(t *testing.T) {
 func TestGetProblemOptionPreservekeys(t *testing.T) {
 	req := &zabbix.GetProblemRequest{Params: zabbix.ProblemParams{}}
 	zabbix.GetProblemOptionPreservekeys(true)(req)
-	if req.Params.Preservekeys != true {
-		t.Errorf("expected Preservekeys true, got %v", req.Params.Preservekeys)
+	if req.Params.PreserveKeys != true { // Corrected field name
+		t.Errorf("expected PreserveKeys true, got %v", req.Params.PreserveKeys) // Corrected field name
 	}
 }
 
