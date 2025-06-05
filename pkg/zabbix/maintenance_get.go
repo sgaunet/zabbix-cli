@@ -2,16 +2,14 @@ package zabbix
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 )
 
 // MaintenanceGetResponse represents the response from maintenance.get API call.
 type MaintenanceGetResponse struct {
 	JSONRPC string        `json:"jsonrpc"`
 	Result  []Maintenance `json:"result,omitempty"`
-	Error   Error         `json:"error,omitempty"`
+	Error   *Error        `json:"error,omitempty"`
 	ID      int           `json:"id"`
 }
 
@@ -126,29 +124,13 @@ func (z *Client) MaintenanceGet(ctx context.Context, request *MaintenanceGetRequ
 		return nil, fmt.Errorf("API request failed for maintenance.get: %w", err)
 	}
 
-	if statusCode != http.StatusOK {
-		// Try to unmarshal the response body as a Zabbix JSON-RPC error object
-		var zbxErrorResponse struct {
-			Error *Error `json:"error,omitempty"`
-		}
-		if unmarshalErr := json.Unmarshal(respBody, &zbxErrorResponse); unmarshalErr == nil && zbxErrorResponse.Error != nil {
-			// If we successfully parsed a Zabbix error, return it directly
-			return nil, zbxErrorResponse.Error
-		}
-		// If we couldn't parse a specific Zabbix error, return a generic HTTP error
-		return nil, ErrUnexpectedResponse.
-			WithMethod("maintenance.get").
-			WithStatus(statusCode).
-			WithBody(respBody)
-	}
-
 	var response MaintenanceGetResponse
-	err = json.Unmarshal(respBody, &response)
-	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal maintenance.get response: %w - %s", err, string(respBody))
+	if err := handleRawResponse(statusCode, respBody, "maintenance.get", &response); err != nil {
+		return nil, err
 	}
 
-	if response.Error.Code != 0 {
+	// After handleRawResponse, we need to check the Error field of the specific response type
+	if response.Error != nil && response.Error.Code != 0 {
 		return nil, response.Error
 	}
 

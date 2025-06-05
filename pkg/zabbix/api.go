@@ -95,31 +95,13 @@ func (z *Client) HostGroupGet(ctx context.Context, request *HostGroupGetRequest)
 		return nil, fmt.Errorf("API request failed for hostgroup.get: %w", err)
 	}
 
-	if statusCode != http.StatusOK {
-		// Try to unmarshal the response body as a Zabbix JSON-RPC error object.
-		// This is because Zabbix might return a standard error structure even for non-200 HTTP responses.
-		var zbxErrorResponse struct {
-			Error *Error `json:"error,omitempty"`
-		}
-		if unmarshalErr := json.Unmarshal(respBody, &zbxErrorResponse); unmarshalErr == nil && zbxErrorResponse.Error != nil && zbxErrorResponse.Error.Code != 0 {
-			// If we successfully parsed a Zabbix error, return it directly.
-			return nil, zbxErrorResponse.Error
-		}
-		// If we couldn't parse a specific Zabbix error, return a generic HTTP error.
-		return nil, ErrUnexpectedResponse.
-			WithMethod("hostgroup.get").
-			WithStatus(statusCode).
-			WithBody(respBody)
-	}
-
 	var response HostGroupGetResponse
-	err = json.Unmarshal(respBody, &response)
-	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal hostgroup.get response: %w - %s", err, string(respBody))
+	if err := handleRawResponse(statusCode, respBody, "hostgroup.get", &response); err != nil {
+		return nil, err
 	}
 
 	if response.Error != nil && response.Error.Code != 0 {
-		return nil, response.Error // response.Error already implements the error interface
+		return nil, response.Error
 	}
 
 	return &response, nil
