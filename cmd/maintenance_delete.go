@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// DeleteMaintenanceCmd represents the delete maintenance subcommand
-var DeleteMaintenanceCmd = &cobra.Command{
+// MaintenanceDeleteCmd represents the delete maintenance subcommand
+var MaintenanceDeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete maintenance periods",
 	Long:  `Delete maintenance periods from your Zabbix installation.`,
@@ -21,8 +21,8 @@ var DeleteMaintenanceCmd = &cobra.Command{
 	},
 }
 
-// DeleteAllMaintenanceCmd represents the command to delete all maintenance periods
-var DeleteAllMaintenanceCmd = &cobra.Command{
+// MaintenanceDeleteAllCmd represents the command to delete all maintenance periods
+var MaintenanceDeleteAllCmd = &cobra.Command{
 	Use:   "all",
 	Short: "Delete all maintenance periods",
 	Long:  `Delete all maintenance periods from your Zabbix installation.`,
@@ -79,12 +79,4 @@ var DeleteAllMaintenanceCmd = &cobra.Command{
 		fmt.Printf("Successfully deleted %d maintenance periods\n", len(deleteResponse.Result.MaintenanceIDs))
 		return nil
 	},
-}
-
-func init() {
-	// Add delete subcommand to maintenance command
-	MaintenanceCmd.AddCommand(DeleteMaintenanceCmd)
-
-	// Add all subcommand to delete command
-	DeleteMaintenanceCmd.AddCommand(DeleteAllMaintenanceCmd)
 }

@@ -22,9 +22,9 @@ var (
 	maintenanceGetSortField string
 )
 
-// GetMaintenanceCmd represents the maintenance get command
-var GetMaintenanceCmd = &cobra.Command{
-	Use:   "maintenance",
+// MaintenanceGetCmd represents the maintenance get command
+var MaintenanceGetCmd = &cobra.Command{
+	Use:   "get",
 	Short: "Get maintenance periods",
 	Long:  `Get maintenance periods from Zabbix with optional filtering.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -137,11 +137,11 @@ var GetMaintenanceCmd = &cobra.Command{
 
 func init() {
 	// Add flags for maintenance get command
-	GetMaintenanceCmd.Flags().StringVarP(&maintenanceGetOutput, "output", "o", "", "Fields to return (comma-separated)")
-	GetMaintenanceCmd.Flags().StringVarP(&maintenanceGetFormat, "format", "f", "table", "Output format: table or json")
-	GetMaintenanceCmd.Flags().StringVarP(&maintenanceGetGroupIDs, "groupids", "g", "", "Filter by host group IDs (comma-separated)")
-	GetMaintenanceCmd.Flags().StringVarP(&maintenanceGetHostIDs, "hostids", "H", "", "Filter by host IDs (comma-separated)")
-	GetMaintenanceCmd.Flags().StringVarP(&maintenanceGetIDs, "maintenanceids", "m", "", "Filter by maintenance IDs (comma-separated)")
-	GetMaintenanceCmd.Flags().IntVarP(&maintenanceGetLimit, "limit", "l", 0, "Limit the number of results")
-	GetMaintenanceCmd.Flags().StringVarP(&maintenanceGetSortField, "sort", "s", "", "Sort field(s) (comma-separated)")
+	MaintenanceGetCmd.Flags().StringVarP(&maintenanceGetOutput, "output", "o", "", "Fields to return (comma-separated)")
+	MaintenanceGetCmd.Flags().StringVarP(&maintenanceGetFormat, "format", "f", "table", "Output format: table or json")
+	MaintenanceGetCmd.Flags().StringVarP(&maintenanceGetGroupIDs, "groupids", "g", "", "Filter by host group IDs (comma-separated)")
+	MaintenanceGetCmd.Flags().StringVarP(&maintenanceGetHostIDs, "hostids", "H", "", "Filter by host IDs (comma-separated)")
+	MaintenanceGetCmd.Flags().StringVarP(&maintenanceGetIDs, "maintenanceids", "m", "", "Filter by maintenance IDs (comma-separated)")
+	MaintenanceGetCmd.Flags().IntVarP(&maintenanceGetLimit, "limit", "l", 0, "Limit the number of results")
+	MaintenanceGetCmd.Flags().StringVarP(&maintenanceGetSortField, "sort", "s", "", "Sort field(s) (comma-separated)")
 }

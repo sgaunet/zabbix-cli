@@ -64,6 +64,10 @@ func init() {
 
 	rootCmd.AddCommand(ackCmd)
 	rootCmd.AddCommand(MaintenanceCmd)
+	MaintenanceCmd.AddCommand(MaintenanceCreateCmd)
+	MaintenanceCmd.AddCommand(MaintenanceDeleteCmd)
+	MaintenanceCmd.AddCommand(MaintenanceGetCmd)
+	MaintenanceDeleteCmd.AddCommand(MaintenanceDeleteAllCmd)
 }
 
 // initConfig reads in config file and ENV variables if set.
