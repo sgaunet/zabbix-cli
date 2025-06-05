@@ -57,10 +57,10 @@ func init() {
 	rootCmd.AddCommand(exportCmd)
 	rootCmd.AddCommand(importCmd)
 
-	GetProblemCmd.Flags().BoolVarP(&Ack, "ack", "a", false, "show acknowledged problems")
-	GetProblemCmd.Flags().BoolVarP(&Supp, "supp", "s", false, "show suppressed problems")
-	GetCmd.AddCommand(GetProblemCmd)
-	rootCmd.AddCommand(GetCmd)
+	ProblemGetCmd.Flags().BoolVarP(&Ack, "ack", "a", false, "show acknowledged problems")
+	ProblemGetCmd.Flags().BoolVarP(&Supp, "supp", "s", false, "show suppressed problems")
+	ProblemCmd.AddCommand(ProblemGetCmd)
+	rootCmd.AddCommand(ProblemCmd)
 
 	rootCmd.AddCommand(ackCmd)
 	rootCmd.AddCommand(MaintenanceCmd)

@@ -14,9 +14,9 @@ import (
 var Ack bool
 var Supp bool
 
-// GetProblemCmd represents the get problem subcommand
-var GetProblemCmd = &cobra.Command{
-	Use:   "problem",
+// ProblemGetCmd represents the get problem subcommand
+var ProblemGetCmd = &cobra.Command{
+	Use:   "get",
 	Short: "get problems",
 	Long:  `get problems`,
 	Run: func(_ *cobra.Command, _ []string) {
