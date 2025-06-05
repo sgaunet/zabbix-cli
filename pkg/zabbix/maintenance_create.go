@@ -28,14 +28,14 @@ func WithMaintenanceName(name string) MaintenanceCreateOption {
 // WithMaintenanceActiveSince sets the time when the maintenance period becomes active (Unix timestamp).
 func WithMaintenanceActiveSince(activeSince int64) MaintenanceCreateOption {
 	return func(mcr *MaintenanceCreateRequest) {
-		mcr.Params.ActiveSince = activeSince
+		mcr.Params.ActiveSince = StringInt64(activeSince)
 	}
 }
 
 // WithMaintenanceActiveTill sets the time when the maintenance period ends (Unix timestamp).
 func WithMaintenanceActiveTill(activeTill int64) MaintenanceCreateOption {
 	return func(mcr *MaintenanceCreateRequest) {
-		mcr.Params.ActiveTill = activeTill
+		mcr.Params.ActiveTill = StringInt64(activeTill)
 	}
 }
 

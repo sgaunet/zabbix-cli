@@ -1,5 +1,43 @@
 package zabbix
 
+import (
+	"encoding/json"
+	"strconv"
+)
+
+// StringInt64 is a custom type that can unmarshal both string and integer JSON values into an int64
+type StringInt64 int64
+
+// UnmarshalJSON is a custom unmarshaler for StringInt64 to handle both string and int values
+func (si *StringInt64) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as integer first
+	var intValue int64
+	if err := json.Unmarshal(data, &intValue); err == nil {
+		*si = StringInt64(intValue)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as string
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err != nil {
+		return err
+	}
+
+	// Convert string to int64
+	intValue, err := strconv.ParseInt(stringValue, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	*si = StringInt64(intValue)
+	return nil
+}
+
+// Int64 converts StringInt64 back to a standard int64 value
+func (si StringInt64) Int64() int64 {
+	return int64(si)
+}
+
 // MaintenanceType represents the type of maintenance.
 type MaintenanceType int
 
@@ -10,6 +48,31 @@ const (
 	// MaintenanceNoDataCollection - maintenance without data collection
 	MaintenanceNoDataCollection MaintenanceType = 1
 )
+
+// UnmarshalJSON is a custom unmarshaler for MaintenanceType to handle both string and int values
+func (mt *MaintenanceType) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as integer first
+	var intValue int
+	if err := json.Unmarshal(data, &intValue); err == nil {
+		*mt = MaintenanceType(intValue)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as string
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err != nil {
+		return err
+	}
+
+	// Convert string to int
+	intValue, err := strconv.Atoi(stringValue)
+	if err != nil {
+		return err
+	}
+
+	*mt = MaintenanceType(intValue)
+	return nil
+}
 
 // TimePeriodType represents the type of time period.
 type TimePeriodType int
@@ -26,6 +89,31 @@ const (
 	TimePeriodTypeMonthly TimePeriodType = 4
 )
 
+// UnmarshalJSON is a custom unmarshaler for TimePeriodType to handle both string and int values
+func (tpt *TimePeriodType) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as integer first
+	var intValue int
+	if err := json.Unmarshal(data, &intValue); err == nil {
+		*tpt = TimePeriodType(intValue)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as string
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err != nil {
+		return err
+	}
+
+	// Convert string to int
+	intValue, err := strconv.Atoi(stringValue)
+	if err != nil {
+		return err
+	}
+
+	*tpt = TimePeriodType(intValue)
+	return nil
+}
+
 // Maintenance represents a Zabbix maintenance.
 type Maintenance struct {
 	// Maintenance ID (readonly)
@@ -33,17 +121,17 @@ type Maintenance struct {
 	// Maintenance name
 	Name string `json:"name"`
 	// Maintenance active since (timestamp)
-	ActiveSince int64 `json:"active_since"`
+	ActiveSince StringInt64 `json:"active_since"`
 	// Maintenance active till (timestamp)
-	ActiveTill int64 `json:"active_till"`
+	ActiveTill StringInt64 `json:"active_till"`
 	// Description of the maintenance
 	Description string `json:"description"`
 	// Type of maintenance
 	MaintenanceType MaintenanceType `json:"maintenance_type"`
 	// Time when the maintenance was created (readonly)
-	CreatedAt int64 `json:"created_at,omitempty"`
+	CreatedAt StringInt64 `json:"created_at,omitempty"`
 	// Time when the maintenance was last updated (readonly)
-	UpdatedAt int64 `json:"updated_at,omitempty"`
+	UpdatedAt StringInt64 `json:"updated_at,omitempty"`
 	// Time periods when the maintenance is active
 	TimePeriods []TimePeriod `json:"timeperiods,omitempty"`
 	// Host groups to add to the maintenance
