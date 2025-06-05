@@ -136,7 +136,10 @@ func (z *Client) MaintenanceGet(ctx context.Context, request *MaintenanceGetRequ
 			return nil, zbxErrorResponse.Error
 		}
 		// If we couldn't parse a specific Zabbix error, return a generic HTTP error
-		return nil, fmt.Errorf("API request for maintenance.get returned HTTP status %d and unexpected response body: %s", statusCode, string(respBody))
+		return nil, ErrUnexpectedResponse.
+			WithMethod("maintenance.get").
+			WithStatus(statusCode).
+			WithBody(respBody)
 	}
 
 	var response MaintenanceGetResponse

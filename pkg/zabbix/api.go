@@ -106,7 +106,10 @@ func (z *Client) HostGroupGet(ctx context.Context, request *HostGroupGetRequest)
 			return nil, zbxErrorResponse.Error
 		}
 		// If we couldn't parse a specific Zabbix error, return a generic HTTP error.
-		return nil, fmt.Errorf("API request for hostgroup.get returned HTTP status %d and unexpected response body: %s", statusCode, string(respBody))
+		return nil, ErrUnexpectedResponse.
+			WithMethod("hostgroup.get").
+			WithStatus(statusCode).
+			WithBody(respBody)
 	}
 
 	var response HostGroupGetResponse

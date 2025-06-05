@@ -79,8 +79,10 @@ func (z *Client) MaintenanceDelete(ctx context.Context, request *MaintenanceDele
 			return nil, zbxErrorResponse.Error
 		}
 		// If we couldn't parse a specific Zabbix error, return a generic HTTP error
-		return nil, fmt.Errorf("API request for maintenance.delete returned HTTP status %d and unexpected response body: %s", 
-			statusCode, string(respBody))
+		return nil, ErrUnexpectedResponse.
+			WithMethod("maintenance.delete").
+			WithStatus(statusCode).
+			WithBody(respBody)
 	}
 
 	var response MaintenanceDeleteResponse
