@@ -8,7 +8,7 @@ type MaintenanceCreateOption func(*MaintenanceCreateRequest)
 // Default JSONRPC version is "2.0" and method is "maintenance.create".
 func NewMaintenanceCreateRequest(options ...MaintenanceCreateOption) *MaintenanceCreateRequest {
 	mcr := &MaintenanceCreateRequest{
-		JSONRPC: "2.0",
+		JSONRPC: JSONRPC,
 		Method:  "maintenance.create",
 		Params:  Maintenance{}, // Initialize empty Maintenance params
 	}

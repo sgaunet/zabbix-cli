@@ -355,7 +355,7 @@ func TestHostGroupGet(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintln(w, `{"jsonrpc": "2.0", "error": {"code": -32099, "message": "Internal error", "data": "Server is experiencing issues."}, "id": 123}`)
+			fmt.Fprintf(w, `{"jsonrpc": "%s", "error": {"code": -32099, "message": "Internal error", "data": "Server is experiencing issues."}, "id": 123}`, zabbix.JSONRPC)
 		}))
 		defer ts.Close()
 

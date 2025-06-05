@@ -32,7 +32,7 @@ func TestMaintenanceGet(t *testing.T) {
 
 		// Return a mock response
 		mockResponse := MaintenanceGetResponse{
-			JSONRPC: "2.0",
+			JSONRPC: JSONRPC,
 			Result: []Maintenance{
 				{
 					MaintenanceID:   "1",

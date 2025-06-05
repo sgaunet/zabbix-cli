@@ -60,7 +60,7 @@ type HostGroupGetOption func(*HostGroupGetRequest)
 // NewHostGroupGetRequest creates a new HostGroupGetRequest with default values and applies any provided options.
 func NewHostGroupGetRequest(options ...HostGroupGetOption) *HostGroupGetRequest {
 	hgr := &HostGroupGetRequest{
-		JSONRPC: "2.0",
+		JSONRPC: JSONRPC,
 		Method:  "hostgroup.get",
 		Params:  HostGroupGetParams{}, // Initialize with empty params
 	}

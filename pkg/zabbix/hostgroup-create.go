@@ -39,7 +39,7 @@ func NewHostGroupCreateRequest(groupNames []string, options ...HostGroupCreateOp
 	}
 
 	hcr := &HostGroupCreateRequest{
-		JSONRPC: "2.0",
+		JSONRPC: JSONRPC,
 		Method:  "hostgroup.create",
 		Params:  params,
 	}

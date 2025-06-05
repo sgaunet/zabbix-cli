@@ -21,7 +21,7 @@ type MaintenanceGetOption func(*MaintenanceGetRequest)
 // NewMaintenanceGetRequest creates a new request for the maintenance.get API method with default values.
 func NewMaintenanceGetRequest(options ...MaintenanceGetOption) *MaintenanceGetRequest {
 	mgr := &MaintenanceGetRequest{
-		JSONRPC: "2.0",
+		JSONRPC: JSONRPC,
 		Method:  "maintenance.get",
 		Params:  MaintenanceGetParams{},
 		ID:      1, // Default ID

@@ -14,8 +14,8 @@ import (
 func TestGetTemplateID(t *testing.T) {
 	ts := httptest.NewTLSServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			res := `{
-				"jsonrpc": "2.0",
+			res := fmt.Sprintf(`{
+				"jsonrpc": "%s",
 				"result": [
 					{
 						"templateid": "10001",
@@ -23,7 +23,7 @@ func TestGetTemplateID(t *testing.T) {
 					}
 				],
 				"id": 1
-			}`
+			}`, zabbix.JSONRPC)
 			w.Header().Add("Content-Type", "application/json")
 			fmt.Fprintln(w, string(res))
 		}))

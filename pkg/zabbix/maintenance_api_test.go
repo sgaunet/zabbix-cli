@@ -35,7 +35,7 @@ func TestMaintenanceCreate(t *testing.T) {
 
 		// Return success response
 		resp := MaintenanceCreateResponse{
-			JSONRPC: "2.0",
+			JSONRPC: JSONRPC,
 			Result: MaintenanceResponse{
 				MaintenanceIDs: []string{"123"},
 			},
