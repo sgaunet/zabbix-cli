@@ -51,16 +51,53 @@ var ProblemGetCmd = &cobra.Command{
 	},
 }
 
+// getSeverityStyle returns the appropriate pterm style for a given severity level
+func getSeverityStyle(severity string) *pterm.Style {
+	switch severity {
+	case "Information":
+		return pterm.NewStyle(pterm.FgBlue)
+	case "Warning":
+		return pterm.NewStyle(pterm.FgYellow)
+	case "Average":
+		return pterm.NewStyle(pterm.FgLightYellow)
+	case "High":
+		return pterm.NewStyle(pterm.FgRed)
+	case "Disaster":
+		return pterm.NewStyle(pterm.FgRed, pterm.Bold)
+	default: // Not classified
+		return pterm.NewStyle(pterm.FgWhite)
+	}
+}
+
 func PrettyPrintProblems(problems []zabbix.Problem) error {
 	tData := pterm.TableData{
-		{"Time", "Probem", "Severity", "Duration", "Ack", "Supp"},
+		{"Time", "Problem", "Severity", "Duration", "Ack", "Supp"},
 	}
+
 	for _, pb := range problems {
-		tData = append(tData, []string{pb.GetClock().Format("2006-01-02 15:04:05"),
-			pb.Name, pb.GetSeverity(), pb.GetDurationStr(), pb.GetAcknowledgeStr(), pb.GetSuppressedStr()})
+		severity := pb.GetSeverity()
+		severityStyle := getSeverityStyle(severity)
+		
+		// Format the severity with appropriate color
+		coloredSeverity := severityStyle.Sprint(severity)
+		
+		tData = append(tData, []string{
+			pb.GetClock().Format("2006-01-02 15:04:05"),
+			pb.Name,
+			coloredSeverity,
+			pb.GetDurationStr(),
+			pb.GetAcknowledgeStr(),
+			pb.GetSuppressedStr(),
+		})
 	}
+
 	// Create a table with a header and the defined data, then render it
-	err := pterm.DefaultTable.WithHasHeader().WithData(tData).Render()
+	err := pterm.DefaultTable.
+		WithHasHeader().
+		WithBoxed(true).
+		WithData(tData).
+		Render()
+
 	if err != nil {
 		return fmt.Errorf("error rendering table: %w", err)
 	}
