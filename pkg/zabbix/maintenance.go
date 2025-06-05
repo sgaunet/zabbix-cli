@@ -2,6 +2,7 @@ package zabbix
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 )
 
@@ -20,13 +21,13 @@ func (si *StringInt64) UnmarshalJSON(data []byte) error {
 	// If that fails, try to unmarshal as string
 	var stringValue string
 	if err := json.Unmarshal(data, &stringValue); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal StringInt64 from string: %w", err)
 	}
 
 	// Convert string to int64
 	intValue, err := strconv.ParseInt(stringValue, 10, 64)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse StringInt64 from string '%s': %w", stringValue, err)
 	}
 
 	*si = StringInt64(intValue)
@@ -61,13 +62,13 @@ func (mt *MaintenanceType) UnmarshalJSON(data []byte) error {
 	// If that fails, try to unmarshal as string
 	var stringValue string
 	if err := json.Unmarshal(data, &stringValue); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal MaintenanceType from string: %w", err)
 	}
 
 	// Convert string to int
 	intValue, err := strconv.Atoi(stringValue)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse MaintenanceType from string '%s': %w", stringValue, err)
 	}
 
 	*mt = MaintenanceType(intValue)
@@ -101,13 +102,13 @@ func (tpt *TimePeriodType) UnmarshalJSON(data []byte) error {
 	// If that fails, try to unmarshal as string
 	var stringValue string
 	if err := json.Unmarshal(data, &stringValue); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal TimePeriodType from string: %w", err)
 	}
 
 	// Convert string to int
 	intValue, err := strconv.Atoi(stringValue)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse TimePeriodType from string '%s': %w", stringValue, err)
 	}
 
 	*tpt = TimePeriodType(intValue)
