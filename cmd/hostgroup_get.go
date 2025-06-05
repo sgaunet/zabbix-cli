@@ -7,14 +7,14 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/spf13/cobra"
 	"github.com/sgaunet/zabbix-cli/pkg/zabbix"
+	"github.com/spf13/cobra"
 )
 
 var hostGroupOutputFormat string
 
-var GetHostGroupCmd = &cobra.Command{
-	Use:   "hostgroup",
+var HostGroupGetCmd = &cobra.Command{
+	Use:   "get",
 	Short: "Get Zabbix host groups",
 	Long:  `Get Zabbix host groups. By default, displays results in a table. Use --output json for raw JSON.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -71,9 +71,4 @@ var GetHostGroupCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-func init() {
-	// Command registration will be handled by the parent command (get.go)
-	GetHostGroupCmd.Flags().StringVarP(&hostGroupOutputFormat, "output", "o", "table", "Output format (table or json)")
 }

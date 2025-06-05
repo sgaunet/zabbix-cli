@@ -68,6 +68,9 @@ func init() {
 	MaintenanceCmd.AddCommand(MaintenanceDeleteCmd)
 	MaintenanceCmd.AddCommand(MaintenanceGetCmd)
 	MaintenanceDeleteCmd.AddCommand(MaintenanceDeleteAllCmd)
+
+	rootCmd.AddCommand(HostgroupCmd)
+	HostgroupCmd.AddCommand(HostGroupGetCmd)
 }
 
 // initConfig reads in config file and ENV variables if set.
