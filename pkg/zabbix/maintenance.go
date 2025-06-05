@@ -35,8 +35,11 @@ func (si *StringInt64) UnmarshalJSON(data []byte) error {
 }
 
 // Int64 converts StringInt64 back to a standard int64 value
-func (si StringInt64) Int64() int64 {
-	return int64(si)
+func (si *StringInt64) Int64() int64 {
+	if si == nil {
+		return 0
+	}
+	return int64(*si)
 }
 
 // MaintenanceType represents the type of maintenance.
