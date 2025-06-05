@@ -2,4 +2,4 @@
 trigger: always_on
 ---
 
-code should be testable and have unit tests in black box testing only.
+code in zabbix package should be testable and have unit tests in black box testing only.
