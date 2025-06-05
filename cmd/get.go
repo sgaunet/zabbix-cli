@@ -20,5 +20,4 @@ var GetCmd = &cobra.Command{
 
 func init() {
 	GetCmd.AddCommand(GetHostGroupCmd) // GetHostGroupCmd is defined in get-hostgroup.go
-	GetCmd.AddCommand(GetMaintenanceCmd) // GetMaintenanceCmd is defined in get-maintenance.go
 }
