@@ -299,10 +299,13 @@ func NewGetAllHostGroupsRequest(options ...HostGroupGetOption) *HostGroupGetRequ
 		WithHostGroupGetOutput("extend"), // Ensure all fields are fetched for host groups
 	}
 
-	// Combine base options with any user-provided options.
-	// User-provided options can override base options if they modify the same fields.
-	// User options like Auth and ID will be applied.
-	allOptions := append(baseOptions, options...)
+	// Create a new slice with enough capacity to hold both base and user options
+	allOptions := make([]HostGroupGetOption, 0, len(baseOptions) + len(options))
+	
+	// Add base options first
+	allOptions = append(allOptions, baseOptions...)
+	// Then add user-provided options which can override base options
+	allOptions = append(allOptions, options...)
 
 	// Use the existing NewHostGroupGetRequest constructor with the combined options
 	return NewHostGroupGetRequest(allOptions...)
