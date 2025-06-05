@@ -67,9 +67,9 @@ type TimePeriod struct {
 	// Days of the week when the maintenance must come into effect (1-7, where 1 is Monday)
 	DayOfWeek []int `json:"dayofweek,omitempty"`
 	// Start time of the maintenance period in seconds since the start of the day
-	StartTime int `json:"start_time"`
+	StartTime int `json:"start_time,omitempty"`
 	// Duration of the maintenance period in seconds
-	Period int `json:"period"`
+	Period int `json:"period,omitempty"`
 }
 
 // ProblemTag represents a problem tag for maintenance.
