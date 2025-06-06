@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var ackSeverityFlag string
+
 var ackCmd = &cobra.Command{
 	Use:   "ack",
 	Short: "acknowledge events",
@@ -31,7 +33,14 @@ var ackCmd = &cobra.Command{
 		}
 		defer z.Logout(ctx) //nolint: errcheck
 
-		problems, err := z.GetProblems(ctx)
+		var problemOptions []zabbix.GetProblemOption
+		if ackSeverityFlag != "" {
+			severityInt := zabbix.GetSeverityString(ackSeverityFlag)
+			// ProblemParams.Severities expects []string of integer severities
+			problemOptions = append(problemOptions, zabbix.GetProblemOptionSeverities([]string{fmt.Sprintf("%d", severityInt)}))
+		}
+
+		problems, err := z.GetProblems(ctx, problemOptions...)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)

@@ -13,6 +13,7 @@ import (
 
 var Ack bool
 var Supp bool
+var problemSeverityFlag string
 
 // ProblemGetCmd represents the get problem subcommand
 var ProblemGetCmd = &cobra.Command{
@@ -40,6 +41,12 @@ var ProblemGetCmd = &cobra.Command{
 		var options []zabbix.GetProblemOption
 		options = append(options, zabbix.GetProblemOptionAcknowledged(Ack))
 		options = append(options, zabbix.GetProblemOptionSuppressed(Supp))
+
+		if problemSeverityFlag != "" {
+			severityInt := zabbix.GetSeverityString(problemSeverityFlag)
+			// ProblemParams.Severities expects []string of integer severities
+			options = append(options, zabbix.GetProblemOptionSeverities([]string{fmt.Sprintf("%d", severityInt)}))
+		}
 
 		res, err := z.GetProblems(ctx, options...)
 		if err != nil {
@@ -77,10 +84,10 @@ func PrettyPrintProblems(problems []zabbix.Problem) error {
 	for _, pb := range problems {
 		severity := pb.GetSeverity()
 		severityStyle := getSeverityStyle(severity)
-		
+
 		// Format the severity with appropriate color
 		coloredSeverity := severityStyle.Sprint(severity)
-		
+
 		tData = append(tData, []string{
 			pb.GetClock().Format("2006-01-02 15:04:05"),
 			pb.Name,
