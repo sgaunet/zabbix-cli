@@ -34,36 +34,24 @@ type ProblemParams struct {
 	GroupsIDs    []string            `json:"groupids,omitempty"`
 	HostsIDs     []string            `json:"hostids,omitempty"`
 	ObjectIDs    []string            `json:"objectids,omitempty"`
-	Source       int                 `json:"source,omitempty"` // Return only problems with the given type. Refer to the problem event object page for a list of supported event types. Default: 0 - problem created by a trigger.
-	Object       int                 `json:"object,omitempty"` // Return only problems with the given object type. Refer to the problem event object page for a list of supported object types. Default: 0 - trigger.
-	Acknowledged bool                `json:"acknowledged"`
-	Suppressed   bool                `json:"suppressed"`
-	Severities   []string            `json:"severities,omitempty"` // Return only problems with given event severities. Applies only if object is trigger.
-	EvalType     int                 `json:"evaltype,omitempty"`   // Rules for tag searching. Possible values: 0 - (default) And/Or;  2 - Or.
+	Source       int                 `json:"source,omitempty"` // Default: 0 - problem created by a trigger.
+	Object       int                 `json:"object,omitempty"` // Default: 0 - trigger.
+	Acknowledged bool                `json:"acknowledged,omitempty"`
+	Suppressed   bool                `json:"suppressed,omitempty"`
+	Severities   []string            `json:"severities,omitempty"` // Applies only if object is trigger.
+	EvalType     int                 `json:"evaltype,omitempty"`   // Rules for tag searching. 0 - (default) And/Or; 2 - Or.
 	Tags         []FilterProblemTags `json:"tags,omitempty"`
-	Recent       bool                `json:"recent,omitempty"`       // true - return PROBLEM and recently RESOLVED problems (depends on Display OK triggers for N seconds) Default: false - UNRESOLVED problems only
-	EventidFrom  string              `json:"eventid_from,omitempty"` // Return only problems with IDs greater or equal to the given ID.
-	EventidTill  string              `json:"eventid_till,omitempty"` // Return only problems with IDs less or equal to the given ID.
-	TimeFrom     int64               `json:"time_from,omitempty"`    // Return only problems that have been created after or at the given time.
-	TimeTill     int64               `json:"time_till,omitempty"`    // Return only problems that have been created before or at the given time.
-	// selectAcknowledges 	query 	Return an acknowledges property with the problem updates. Problem updates are sorted in reverse chronological order.
-	// The problem update object has the following properties:
-	// acknowledgeid - (string) update's ID;
-	// userid - (string) ID of the user that updated the event;
-	// eventid - (string) ID of the updated event;
-	// clock - (timestamp) time when the event was updated;
-	// message - (string) text of the message;
-	// action - (integer)type of update action (see event.acknowledge);
-	// old_severity - (integer) event severity before this update action;
-	// new_severity - (integer) event severity after this update action;
+	Recent       bool                `json:"recent,omitempty"`       // true - return PROBLEM and recently RESOLVED problems. Default: false - UNRESOLVED problems only.
+	EventidFrom  string              `json:"eventid_from,omitempty"`
+	EventidTill  string              `json:"eventid_till,omitempty"`
+	TimeFrom     int64               `json:"time_from,omitempty"`
+	TimeTill     int64               `json:"time_till,omitempty"`
 
-	// Supports count.
-	// selectTags query // Return a tags property with the problem tags. Output format: [{"tag": "<tag>", "value": "<value>"}, ...].
-	// selectSuppressionData 	query 	Return a suppression_data property with the list of maintenances:
-	// maintenanceid - (string) ID of the maintenance;
-	// suppress_until - (integer) time until the problem is suppressed.
+	// Select parameters to include additional data in the response
+	SelectAcknowledges    string `json:"selectAcknowledges,omitempty"`    // e.g., "extend", returns 'acknowledges' property in Problem.
+	SelectTags            string `json:"selectTags,omitempty"`            // e.g., "extend", returns 'tags' property in Problem.
+	SelectSuppressionData string `json:"selectSuppressionData,omitempty"` // e.g., "extend", returns 'suppression_data' property in Problem.
 
-	// sortfield 	string/array 	Sort the result by the given properties. Possible values are: eventid.
 	CommonGetParams
 }
 
@@ -240,24 +228,82 @@ func GetProblemOptionSearchWildcardsEnabled(searchWildcardsEnabled bool) GetProb
 	}
 }
 
-// Problem represents a Zabbix problem.
-type Problem struct {
-	Acknowledged  string `json:"acknowledged"`
-	Clock         string `json:"clock"`
-	CorrelationID string `json:"correlationID"`
-	EventID       string `json:"eventID"`
-	Name          string `json:"name"`
-	Ns            string `json:"ns"`
-	Object        string `json:"object"`
-	ObjectID      string `json:"objectID"`
-	Opdata        string `json:"opdata"`
-	Rclock        string `json:"r_clock"`
-	ReventID      string `json:"r_eventID"`
-	Rns           string `json:"r_ns"`
-	Severity      string `json:"severity"`
-	Source        string `json:"source"`
-	Suppressed    string `json:"suppressed"`
+// ProblemResponseTag represents a tag associated with a problem, as returned by problem.get with selectTags.
+// This is distinct from FilterProblemTags (used for filtering in params) and the ProblemTag in maintenance.go.
+// API Reference: problem.get, selectTags parameter.
+// Output format: [{"tag": "<tag>", "value": "<value>"}, ...]
+type ProblemResponseTag struct {
+	Tag   string `json:"tag"`
+	Value string `json:"value"`
+}
+
+// AcknowledgeEntry represents an acknowledgment record for a problem.
+// API Reference: problem.get, selectAcknowledges parameter.
+// The problem update object has the following properties:
+// acknowledgeid - (string) update's ID;
+// userid - (string) ID of the user that updated the event;
+// eventid - (string) ID of the updated event;
+// clock - (timestamp) time when the event was updated;
+// message - (string) text of the message;
+// action - (integer) type of update action (see event.acknowledge);
+// old_severity - (integer) event severity before this update action;
+// new_severity - (integer) event severity after this update action;
+type AcknowledgeEntry struct {
+	AcknowledgeID string `json:"acknowledgeid"`
 	UserID        string `json:"userid"`
+	EventID       string `json:"eventid"`
+	Clock         string `json:"clock"`        // timestamp
+	Message       string `json:"message"`
+	Action        int    `json:"action"`       // integer
+	OldSeverity   int    `json:"old_severity"` // integer
+	NewSeverity   int    `json:"new_severity"` // integer
+}
+
+// SuppressionDataEntry represents data about problem suppression.
+// API Reference: problem.get, selectSuppressionData parameter.
+// The suppression_data object has the following properties:
+// maintenanceid - (string) ID of the maintenance;
+// suppress_until - (integer) time until the problem is suppressed.
+type SuppressionDataEntry struct {
+	MaintenanceID string `json:"maintenanceid"`
+	SuppressUntil int64  `json:"suppress_until"` // timestamp
+}
+
+// Problem represents a Zabbix problem, potentially with additional data from select queries.
+// API Reference: problem object, problem.get method.
+// Most fields are Readonly.
+type Problem struct {
+	// Core problem fields
+	EventID      string `json:"eventid"`                 // Readonly: ID of the problem event.
+	Source       string `json:"source"`                  // Readonly: Type of object that created the problem event (e.g., "0" for trigger).
+	Object       string `json:"object"`                  // Readonly: Type of object related to the problem event (e.g., "0" for trigger).
+	ObjectID     string `json:"objectid"`                // Readonly: ID of the related object.
+	Clock        string `json:"clock"`                   // Readonly: Time when the problem event was created (timestamp).
+	Ns           string `json:"ns"`                      // Readonly: Nanoseconds when the problem event was created.
+	Name         string `json:"name"`                    // Readonly: Problem name.
+	Acknowledged string `json:"acknowledged"`            // Readonly: Whether the problem event is acknowledged ("0" or "1").
+	Severity     string `json:"severity"`                // Readonly: Current severity of the problem (e.g., "0"-"5").
+
+	// Recovery information
+	Rclock   string `json:"r_clock,omitempty"`   // Readonly: Time when the problem was resolved (timestamp).
+	ReventID string `json:"r_eventid,omitempty"` // Readonly: ID of the recovery event.
+	Rns      string `json:"r_ns,omitempty"`      // Readonly: Nanoseconds when the problem was resolved.
+
+	// Correlation information
+	CorrelationID   string `json:"correlationid,omitempty"`   // Readonly: ID of the correlation rule that correlated the problem.
+	CorrelationMode int    `json:"correlation_mode,omitempty"` // Readonly: How the problem was correlated.
+	CorrelationTag  string `json:"correlation_tag,omitempty"`  // Readonly: Tag used for correlation.
+	CauseEventID    string `json:"cause_eventid,omitempty"`    // Readonly: ID of the problem event that caused this problem.
+
+	// Operational and suppression data
+	Opdata        string `json:"opdata,omitempty"`           // Readonly: Operational data of the problem.
+	Suppressed    string `json:"suppressed"`                 // Readonly: Whether the problem event is suppressed ("0" or "1").
+	SuppressUntil string `json:"suppress_until,omitempty"`   // Readonly: Timestamp until when the problem event is suppressed (problem's own suppression time).
+
+	// Fields populated by select queries
+	Acknowledges    []AcknowledgeEntry     `json:"acknowledges,omitempty"`
+	Tags            []ProblemResponseTag   `json:"tags,omitempty"` // Note: API returns "tags", distinct from ProblemParams.Tags used for filtering.
+	SuppressionData []SuppressionDataEntry `json:"suppression_data,omitempty"`
 }
 
 // GetClock returns the clock as a time.Time.
@@ -347,10 +393,10 @@ func (p *Problem) GetSeverity() string {
 
 // ResultProblem represents the result of a problem.get request.
 type ResultProblem struct {
-	JSONRPC string      `json:"jsonrpc"`
-	Result  []Problem   `json:"result"`
-	Error   *Error      `json:"error,omitempty"` // Changed to pointer type *Error
-	ID      int         `json:"id"`
+	JSONRPC string        `json:"jsonrpc"`
+	Result  []Problem     `json:"result"`
+	Error   *Error        `json:"error,omitempty"` // Uses common.Error as per MEMORY[cf628beb-6a65-471f-8fc1-8c971bbf63fe] (defined in pkg/zabbix/common.go)
+	ID      int           `json:"id"`
 }
 
 // GetProblems returns a list of problems.
