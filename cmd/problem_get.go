@@ -47,6 +47,8 @@ var ProblemGetCmd = &cobra.Command{
 			// ProblemParams.Severities expects []string of integer severities
 			options = append(options, zabbix.GetProblemOptionSeverities([]string{fmt.Sprintf("%d", severityInt)}))
 		}
+		// Add SelectHosts to get host information
+		options = append(options, zabbix.GetProblemOptionSelectHosts("extend"))
 
 		res, err := z.GetProblems(ctx, options...)
 		if err != nil {
@@ -78,7 +80,8 @@ func getSeverityStyle(severity string) *pterm.Style {
 
 func PrettyPrintProblems(problems []zabbix.Problem) error {
 	tData := pterm.TableData{
-		{"Time", "Problem", "Severity", "Duration", "Ack", "Supp"},
+		// Header row for the table
+		{"Time", "Host", "Problem", "Severity", "Ack", "Suppressed", "Duration"},
 	}
 
 	for _, pb := range problems {
@@ -88,13 +91,21 @@ func PrettyPrintProblems(problems []zabbix.Problem) error {
 		// Format the severity with appropriate color
 		coloredSeverity := severityStyle.Sprint(severity)
 
+		var hostName string
+		if len(pb.Hosts) > 0 {
+			hostName = pb.Hosts[0].Name // Assuming the first host is the relevant one
+		} else {
+			hostName = "N/A"
+		}
+
 		tData = append(tData, []string{
-			pb.GetClock().Format("2006-01-02 15:04:05"),
-			pb.Name,
-			coloredSeverity,
-			pb.GetDurationStr(),
-			pb.GetAcknowledgeStr(),
-			pb.GetSuppressedStr(),
+			pb.GetClock().Format("2006-01-02 15:04:05"), // Time
+			hostName,                                   // Host
+			pb.Name,                                    // Problem
+			coloredSeverity,                            // Severity
+			pb.GetAcknowledgeStr(),                     // Ack
+			pb.GetSuppressedStr(),                      // Suppressed
+			pb.GetDurationStr(),                        // Duration
 		})
 	}
 
