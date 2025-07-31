@@ -51,7 +51,7 @@ type ProblemParams struct {
 	SelectAcknowledges    string `json:"selectAcknowledges,omitempty"`    // e.g., "extend", returns 'acknowledges' property in Problem.
 	SelectTags            string `json:"selectTags,omitempty"`            // e.g., "extend", returns 'tags' property in Problem.
 	SelectSuppressionData string `json:"selectSuppressionData,omitempty"` // e.g., "extend", returns 'suppression_data' property in Problem.
-
+	SelectHosts           string `json:"selectHosts,omitempty"`           // To retrieve host information
 	CommonGetParams
 }
 
@@ -228,6 +228,14 @@ func GetProblemOptionSearchWildcardsEnabled(searchWildcardsEnabled bool) GetProb
 	}
 }
 
+// GetProblemOptionSelectHosts sets the selectHosts parameter for the problem.get request.
+// Common values: "extend", or an array of specific properties like `["hostid", "name"]` (passed as a string).
+func GetProblemOptionSelectHosts(selectQuery string) GetProblemOption {
+	return func(g *GetProblemRequest) {
+		g.Params.SelectHosts = selectQuery
+	}
+}
+
 // ProblemResponseTag represents a tag associated with a problem, as returned by problem.get with selectTags.
 // This is distinct from FilterProblemTags (used for filtering in params) and the ProblemTag in maintenance.go.
 // API Reference: problem.get, selectTags parameter.
@@ -269,6 +277,15 @@ type SuppressionDataEntry struct {
 	SuppressUntil int64  `json:"suppress_until"` // timestamp
 }
 
+// HostInfo represents basic information about a host related to a problem.
+// This is typically populated by a selectHosts query.
+// Common fields are hostid and name.
+type HostInfo struct {
+	HostID string `json:"hostid"`
+	Name   string `json:"name"`
+	// Add other host properties here if needed, e.g., Host string `json:"host"` (technical name)
+}
+
 // Problem represents a Zabbix problem, potentially with additional data from select queries.
 // API Reference: problem object, problem.get method.
 // Most fields are Readonly.
@@ -304,6 +321,7 @@ type Problem struct {
 	Acknowledges    []AcknowledgeEntry     `json:"acknowledges,omitempty"`
 	Tags            []ProblemResponseTag   `json:"tags,omitempty"` // Note: API returns "tags", distinct from ProblemParams.Tags used for filtering.
 	SuppressionData []SuppressionDataEntry `json:"suppression_data,omitempty"`
+	Hosts           []HostInfo             `json:"hosts,omitempty"` // Populated by selectHosts
 }
 
 // GetClock returns the clock as a time.Time.
