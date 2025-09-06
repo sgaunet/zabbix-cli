@@ -128,7 +128,7 @@ func (z *Client) request(ctx context.Context, method string, payload interface{}
 		return 0, nil, fmt.Errorf("cannot marshal data: %w", err)
 	}
 	responseBody := bytes.NewBuffer(postBody)
-	req, err := http.NewRequest(method, z.APIEndpoint, responseBody)
+	req, err := http.NewRequestWithContext(ctx, method, z.APIEndpoint, responseBody)
 	if err != nil {
 		return 0, nil, fmt.Errorf("cannot create request: %w", err)
 	}

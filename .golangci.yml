@@ -9,6 +9,7 @@ linters:
 
   disable:
     - wsl
+    - wsl_v5
     - nlreturn
     - depguard
     - gochecknoinits
@@ -22,6 +23,7 @@ linters:
     - funlen
     - tagalign
     - godot
+    - noinlineerr
 
   exclusions:
     paths:
