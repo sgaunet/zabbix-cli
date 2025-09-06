@@ -182,6 +182,7 @@ type MaintenanceResponse struct {
 // MaintenanceGetParams represents parameters for maintenance.get API call.
 type MaintenanceGetParams struct {
 	CommonGetParams
+
 	GroupIDs          []string `json:"groupids,omitempty"`
 	HostIDs           []string `json:"hostids,omitempty"`
 	MaintenanceIDs    []string `json:"maintenanceids,omitempty"`

@@ -30,6 +30,8 @@ type FilterProblemTags struct {
 
 // ProblemParams represents the params for a problem.get request.
 type ProblemParams struct {
+	CommonGetParams
+
 	EventIDs     []string            `json:"eventids,omitempty"`
 	GroupsIDs    []string            `json:"groupids,omitempty"`
 	HostsIDs     []string            `json:"hostids,omitempty"`
@@ -52,7 +54,6 @@ type ProblemParams struct {
 	SelectTags            string `json:"selectTags,omitempty"`            // e.g., "extend", returns 'tags' property in Problem.
 	SelectSuppressionData string `json:"selectSuppressionData,omitempty"` // e.g., "extend", returns 'suppression_data' property in Problem.
 	SelectHosts           string `json:"selectHosts,omitempty"`           // To retrieve host information
-	CommonGetParams
 }
 
 // GetProblemRequest represents a request to retrieve problem information from Zabbix API.
