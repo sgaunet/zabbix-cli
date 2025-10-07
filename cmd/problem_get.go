@@ -14,6 +14,7 @@ import (
 var Ack bool
 var Supp bool
 var problemSeverityFlag string
+var problemDashboardName string
 
 // ProblemGetCmd represents the get problem subcommand
 var ProblemGetCmd = &cobra.Command{
@@ -39,6 +40,45 @@ var ProblemGetCmd = &cobra.Command{
 		defer z.Logout(ctx) //nolint:errcheck
 
 		var options []zabbix.GetProblemOption
+
+		// Apply dashboard filters if specified
+		if problemDashboardName != "" {
+			filter := map[string]interface{}{
+				"name": problemDashboardName,
+			}
+			dashboardReq := zabbix.NewDashboardGetRequest(
+				zabbix.WithDashboardGetAuth(z.Auth()),
+				zabbix.WithDashboardGetID(1),
+				zabbix.WithDashboardGetOutput("extend"),
+				zabbix.WithDashboardGetSelectPages("extend"),
+				zabbix.WithDashboardGetFilter(filter),
+			)
+
+			dashboardResp, err := z.DashboardGet(ctx, dashboardReq)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to get dashboard: %v\n", err.Error())
+				os.Exit(1)
+			}
+
+			if len(dashboardResp.Result) == 0 {
+				fmt.Fprintf(os.Stderr, "Dashboard '%s' not found\n", problemDashboardName)
+				os.Exit(1)
+			}
+
+			dashboardFilters, err := zabbix.ParseProblemsWidgetFilters(&dashboardResp.Result[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to parse dashboard filters: %v\n", err.Error())
+				os.Exit(1)
+			}
+
+			if len(dashboardFilters) == 0 {
+				fmt.Fprintf(os.Stderr, "Warning: Dashboard '%s' has no 'problems' widget or no filters\n", problemDashboardName)
+			}
+
+			options = append(options, dashboardFilters...)
+		}
+
+		// Apply CLI flags (these override dashboard filters if both are set)
 		options = append(options, zabbix.GetProblemOptionAcknowledged(Ack))
 		options = append(options, zabbix.GetProblemOptionSuppressed(Supp))
 

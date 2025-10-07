@@ -65,11 +65,13 @@ func init() {
 	ProblemGetCmd.Flags().BoolVarP(&Ack, "ack", "a", false, "show acknowledged problems")
 	ProblemGetCmd.Flags().BoolVarP(&Supp, "supp", "s", false, "show suppressed problems")
 	ProblemGetCmd.Flags().StringVar(&problemSeverityFlag, "severity", "", "Filter problems by severity (e.g., 'Not classified', 'Information', 'Warning', 'Average', 'High', 'Disaster')")
+	ProblemGetCmd.Flags().StringVar(&problemDashboardName, "dashboard", "", "Apply filters from named dashboard (extracts filters from first 'problems' widget)")
 	ProblemCmd.AddCommand(ProblemGetCmd)
 	rootCmd.AddCommand(ProblemCmd)
 
 	rootCmd.AddCommand(ackCmd)
 	ackCmd.Flags().StringVar(&ackSeverityFlag, "severity", "", "Filter problems to acknowledge by severity (e.g., 'Not classified', 'Information', 'Warning', 'Average', 'High', 'Disaster')")
+	ackCmd.Flags().StringVar(&ackDashboardName, "dashboard", "", "Apply filters from named dashboard (extracts filters from first 'problems' widget)")
 
 	rootCmd.AddCommand(MaintenanceCmd)
 	MaintenanceCmd.AddCommand(MaintenanceCreateCmd)
