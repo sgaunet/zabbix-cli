@@ -64,6 +64,8 @@ func init() {
 	rootCmd.AddCommand(ProblemCmd)
 
 	rootCmd.AddCommand(ackCmd)
+	ackCmd.Flags().StringVar(&ackSeverityFlag, "severity", "", "Filter problems to acknowledge by severity (e.g., 'Not classified', 'Information', 'Warning', 'Average', 'High', 'Disaster')")
+
 	rootCmd.AddCommand(MaintenanceCmd)
 	MaintenanceCmd.AddCommand(MaintenanceCreateCmd)
 	MaintenanceCmd.AddCommand(MaintenanceDeleteCmd)
@@ -72,9 +74,6 @@ func init() {
 
 	rootCmd.AddCommand(HostgroupCmd)
 	HostgroupCmd.AddCommand(HostGroupGetCmd)
-
-	rootCmd.AddCommand(ackCmd)
-	ackCmd.Flags().StringVar(&ackSeverityFlag, "severity", "", "Filter problems to acknowledge by severity (e.g., 'Not classified', 'Information', 'Warning', 'Average', 'High', 'Disaster')")
 }
 
 // initConfig reads in config file and ENV variables if set.
