@@ -26,15 +26,23 @@ type DashboardPage struct {
 // Widget represents a dashboard widget.
 // See: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/dashboard/object#widget
 type Widget struct {
-	WidgetID string                 `json:"widgetid,omitempty"`
-	Type     string                 `json:"type"`                   // Widget type.
-	Name     string                 `json:"name,omitempty"`         // Widget name.
-	X        string                 `json:"x,omitempty"`            // Widget horizontal position. 0 - leftmost. Default: 0.
-	Y        string                 `json:"y,omitempty"`            // Widget vertical position. 0 - topmost. Default: 0.
-	Width    string                 `json:"width,omitempty"`        // Widget width. Minimum: 1. Maximum: 24. Default: 1.
-	Height   string                 `json:"height,omitempty"`       // Widget height. Minimum: 2. Maximum: 32. Default: 2.
-	View     string                 `json:"view_mode,omitempty"`    // Widget view mode. 0 - (default) normal; 1 - hidden header.
-	Fields   map[string]interface{} `json:"fields,omitempty"`       // Widget configuration fields.
+	WidgetID string        `json:"widgetid,omitempty"`
+	Type     string        `json:"type"`                // Widget type.
+	Name     string        `json:"name,omitempty"`      // Widget name.
+	X        string        `json:"x,omitempty"`         // Widget horizontal position. 0 - leftmost. Default: 0.
+	Y        string        `json:"y,omitempty"`         // Widget vertical position. 0 - topmost. Default: 0.
+	Width    string        `json:"width,omitempty"`     // Widget width. Minimum: 1. Maximum: 24. Default: 1.
+	Height   string        `json:"height,omitempty"`    // Widget height. Minimum: 2. Maximum: 32. Default: 2.
+	View     string        `json:"view_mode,omitempty"` // Widget view mode. 0 - (default) normal; 1 - hidden header.
+	Fields   []WidgetField `json:"fields,omitempty"`    // Widget configuration fields.
+}
+
+// WidgetField represents a single configuration field in a dashboard widget.
+// See: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/dashboard/object#widget-field
+type WidgetField struct {
+	Type  string      `json:"type"`            // Field type (determines how value is interpreted).
+	Name  string      `json:"name"`            // Field name (e.g., "groupids", "severities", "tags").
+	Value interface{} `json:"value,omitempty"` // Field value (can be string, int, or complex structure depending on field type).
 }
 
 // DashboardUser represents dashboard sharing with a user.
