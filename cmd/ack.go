@@ -50,8 +50,8 @@ var ackCmd = &cobra.Command{
 			fmt.Printf("Acknowledge problem %s\n", pb.Name)
 			_, err = z.AcknowledgeEvents(ctx, []string{pb.EventID}, zabbix.WithActions(zabbix.AddMessage, zabbix.CloseProblem, zabbix.Acknowledge), zabbix.WithMessage("acknowledged from CLI"))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", err.Error())
-				os.Exit(1)
+				fmt.Fprintf(os.Stderr, "Warning: failed to acknowledge problem %s: %v\n", pb.Name, err.Error())
+				continue
 			}
 		}
 	},
