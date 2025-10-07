@@ -19,6 +19,7 @@ type ConfigurationExportOptions struct {
 	MapsID       []string `json:"maps,omitempty"`       // (array) IDs of maps to export.
 	MediaTypesID []string `json:"mediaTypes,omitempty"` // (array) IDs of media types to export.
 	TemplatesID  []string `json:"templates,omitempty"`  // (array) IDs of templates to export.
+	DashboardsID []string `json:"dashboards,omitempty"` // (array) IDs of dashboards to export.
 }
 
 // ConfigurationExportParams is the params struct to export configuration.
@@ -120,6 +121,13 @@ func ExportRequestOptionJSONFormat() ConfigurationExportRequestOption {
 func ExportRequestOptionXMLFormat() ConfigurationExportRequestOption {
 	return func(c *ConfigurationExportRequest) {
 		c.Params.Format = "xml"
+	}
+}
+
+// ExportRequestOptionDashboardsID returns a ConfigurationExportRequestOption for dashboards.
+func ExportRequestOptionDashboardsID(dashboardsID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
+		c.Params.Options.DashboardsID = dashboardsID
 	}
 }
 

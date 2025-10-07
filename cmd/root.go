@@ -19,6 +19,11 @@ var templateName string
 // templateFile is a flag to specify the template file (import)
 var templateFile string
 
+// dashboard-related flags
+var dashboardName string
+var dashboardID string
+var dashboardFile string
+
 var ErrInvalidConfig = errors.New("invalid configuration")
 
 // rootCmd represents the base command when called without any subcommands
@@ -74,6 +79,14 @@ func init() {
 
 	rootCmd.AddCommand(HostgroupCmd)
 	HostgroupCmd.AddCommand(HostGroupGetCmd)
+
+	rootCmd.AddCommand(DashboardCmd)
+	DashboardCmd.AddCommand(DashboardListCmd)
+	DashboardCmd.AddCommand(DashboardExportCmd)
+	DashboardListCmd.Flags().StringVar(&dashboardOutputFormat, "output", "table", "Output format: table or json")
+	DashboardExportCmd.Flags().StringVarP(&dashboardName, "name", "n", "", "Dashboard name to export")
+	DashboardExportCmd.Flags().StringVar(&dashboardID, "id", "", "Dashboard ID to export")
+	DashboardExportCmd.Flags().StringVarP(&dashboardFile, "file", "f", "", "Output file path (default: stdout)")
 }
 
 // initConfig reads in config file and ENV variables if set.
