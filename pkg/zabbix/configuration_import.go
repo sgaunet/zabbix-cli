@@ -30,10 +30,10 @@ func newConfigurationImportRequest(source string) *configurationImportRequest {
 }
 
 type configurationImportResponse struct {
-	JSONRPC  string   `json:"jsonrpc"`
-	Result   bool     `json:"result"`
-	ErrorMsg ErrorMsg `json:"error,omitempty"`
-	ID       int      `json:"id"`
+	JSONRPC string `json:"jsonrpc"`
+	Result  bool   `json:"result"`
+	Error   *Error `json:"error,omitempty"`
+	ID      int    `json:"id"`
 }
 
 // Import imports configuration from the given source string.
@@ -56,8 +56,8 @@ func (z *Client) Import(ctx context.Context, source string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(body))
 	}
-	if res.ErrorMsg != (ErrorMsg{}) {
-		return false, fmt.Errorf("error message: %w", &res.ErrorMsg)
+	if res.Error != nil && res.Error.Code != 0 {
+		return false, res.Error
 	}
 	return res.Result, nil
 }

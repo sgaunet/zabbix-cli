@@ -75,10 +75,22 @@ func TestAcknowledgeEvents(t *testing.T) {
 
 	t.Run("zabbix error message", func(t *testing.T) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			res := zabbix.EventAcknowledgeResponse{
+			res := struct {
+				JSONRPC string `json:"jsonrpc"`
+				ID      int    `json:"id"`
+				Error   struct {
+					Code    int    `json:"code"`
+					Message string `json:"message"`
+					Data    string `json:"data"`
+				} `json:"error"`
+			}{
 				JSONRPC: zabbix.JSONRPC,
 				ID:      1,
-				ErrorMsg: zabbix.ErrorMsg{Code: 123, Message: "fail", Data: "details"},
+				Error: struct {
+					Code    int    `json:"code"`
+					Message string `json:"message"`
+					Data    string `json:"data"`
+				}{Code: 123, Message: "fail", Data: "details"},
 			}
 			resJSON, err := json.Marshal(res)
 			require.NoError(t, err)
@@ -86,11 +98,11 @@ func TestAcknowledgeEvents(t *testing.T) {
 			fmt.Fprintln(w, string(resJSON))
 		}))
 		defer ts.Close()
-		
+
 		z := zabbix.New("user", "pass", ts.URL)
 		z.SetHTTPClient(ts.Client())
 		_, err := z.AcknowledgeEvents(context.Background(), []string{"1"})
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "error message")
+		require.Contains(t, err.Error(), "Zabbix API error")
 	})
 }

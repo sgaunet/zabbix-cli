@@ -6,6 +6,13 @@ import (
 	"strconv"
 )
 
+// Maintenance API method names
+const (
+	MethodMaintenanceCreate = "maintenance.create"
+	MethodMaintenanceGet    = "maintenance.get"
+	MethodMaintenanceDelete = "maintenance.delete"
+)
+
 // StringInt64 is a custom type that can unmarshal both string and integer JSON values into an int64
 type StringInt64 int64
 

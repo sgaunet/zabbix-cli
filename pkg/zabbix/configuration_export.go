@@ -133,10 +133,10 @@ func ExportRequestOptionDashboardsID(dashboardsID []string) ConfigurationExportR
 
 // ConfigurationExportResponse is the response struct of a configuration export request.
 type ConfigurationExportResponse struct {
-	JSONRPC  string   `json:"jsonrpc"`
-	Result   string   `json:"result"`
-	ID       int      `json:"id"`
-	ErrorMsg ErrorMsg `json:"error,omitempty"`
+	JSONRPC string `json:"jsonrpc"`
+	Result  string `json:"result"`
+	ID      int    `json:"id"`
+	Error   *Error `json:"error,omitempty"`
 }
 
 // Export exports the configuration using the provided options.
@@ -157,8 +157,8 @@ func (z *Client) Export(ctx context.Context, opt ...ConfigurationExportRequestOp
 	if err != nil {
 		return "", fmt.Errorf("cannot unmarshal response: %w", err)
 	}
-	if res.ErrorMsg != (ErrorMsg{}) {
-		return "", fmt.Errorf("error message: %w", &res.ErrorMsg)
+	if res.Error != nil && res.Error.Code != 0 {
+		return "", res.Error
 	}
 	return res.Result, nil
 }

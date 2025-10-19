@@ -88,8 +88,8 @@ type EventAcknowledgeResponse struct {
 	Result  struct {
 		Eventids []int `json:"eventids"`
 	} `json:"result"`
-	ID       int      `json:"id"`
-	ErrorMsg ErrorMsg `json:"error,omitempty"`
+	ID    int    `json:"id"`
+	Error *Error `json:"error,omitempty"`
 }
 
 // AcknowledgeEvents acknowledges events with the specified options.
@@ -109,8 +109,8 @@ func (z *Client) AcknowledgeEvents(ctx context.Context, eventsID []string, opts 
 	if err := json.Unmarshal(body, &res); err != nil {
 		return nil, fmt.Errorf("cannot unmarshal response: %w", err)
 	}
-	if res.ErrorMsg != (ErrorMsg{}) {
-		return nil, fmt.Errorf("error message: %w", &res.ErrorMsg)
+	if res.Error != nil && res.Error.Code != 0 {
+		return nil, res.Error
 	}
 	return res.Result.Eventids, nil
 }

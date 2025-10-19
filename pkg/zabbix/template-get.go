@@ -55,15 +55,18 @@ func newTemplateGetRequest(options ...TemplateGetRequestOption) *templateGetRequ
 	return c
 }
 
+// Template represents a template object returned by template.get.
+type Template struct {
+	TemplateID string `json:"templateid"`
+	Name       string `json:"name"`
+}
+
 // TemplateGetResponse struct is used to unmarshal the response from the Zabbix API
 type TemplateGetResponse struct {
-	JSONRPC string `json:"jsonrpc"`
-	Result  []struct {
-		TemplateID string `json:"templateID"`
-		Name       string `json:"name"`
-	} `json:"result"`
-	ErrorMsg ErrorMsg `json:"error,omitempty"`
-	ID       int      `json:"id"`
+	JSONRPC string     `json:"jsonrpc"`
+	Result  []Template `json:"result"`
+	ID      int        `json:"id"`
+	Error   *Error     `json:"error,omitempty"`
 }
 
 // GetTemplates returns templates from the Zabbix API.
@@ -86,8 +89,8 @@ func (z *Client) GetTemplates(options ...TemplateGetRequestOption) (*TemplateGet
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal response: %w", err)
 	}
-	if res.ErrorMsg != (ErrorMsg{}) {
-		return nil, fmt.Errorf("error message: %w", &res.ErrorMsg)
+	if res.Error != nil && res.Error.Code != 0 {
+		return nil, res.Error
 	}
 	return &res, nil
 }
