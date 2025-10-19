@@ -211,6 +211,8 @@ func TestImport(t *testing.T) {
 		// Test import - should fail with API error
 		_, err = z.Import(context.Background(), "test_import_data")
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "error message: Invalid params. Incorrect parameter \"source\"")
+		require.Contains(t, err.Error(), "Zabbix API error")
+		require.Contains(t, err.Error(), "Invalid params")
+		require.Contains(t, err.Error(), "Incorrect parameter \"source\"")
 	})
 }

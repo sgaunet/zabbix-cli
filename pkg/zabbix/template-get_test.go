@@ -40,10 +40,7 @@ func TestGetTemplateID(t *testing.T) {
 
 func TestGetTemplateID_Internal(t *testing.T) {
 	resp := &zabbix.TemplateGetResponse{
-		Result: []struct {
-			TemplateID string `json:"templateID"`
-			Name       string `json:"name"`
-		}{
+		Result: []zabbix.Template{
 			{TemplateID: "10001", Name: "Template OS Linux"},
 			{TemplateID: "10002", Name: "Template OS Windows"},
 		},
@@ -54,10 +51,7 @@ func TestGetTemplateID_Internal(t *testing.T) {
 
 func TestGetTemplateName_Internal(t *testing.T) {
 	resp := &zabbix.TemplateGetResponse{
-		Result: []struct {
-			TemplateID string `json:"templateID"`
-			Name       string `json:"name"`
-		}{
+		Result: []zabbix.Template{
 			{TemplateID: "10001", Name: "Template OS Linux"},
 			{TemplateID: "10002", Name: "Template OS Windows"},
 		},
