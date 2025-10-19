@@ -232,7 +232,7 @@ func TestExtractTags_ValidTags(t *testing.T) {
 	// Check first tag
 	foundTag0 := false
 	for _, tag := range tags {
-		if tag.Tag == "Service" && tag.Value == "Database" && tag.Operator == "0" {
+		if tag.Tag == "Service" && tag.Value == "Database" && tag.Operator == 0 {
 			foundTag0 = true
 			break
 		}
@@ -244,7 +244,7 @@ func TestExtractTags_ValidTags(t *testing.T) {
 	// Check second tag
 	foundTag1 := false
 	for _, tag := range tags {
-		if tag.Tag == "Environment" && tag.Value == "Production" && tag.Operator == "1" {
+		if tag.Tag == "Environment" && tag.Value == "Production" && tag.Operator == 1 {
 			foundTag1 = true
 			break
 		}

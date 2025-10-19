@@ -98,7 +98,7 @@ func TestGetProblemOptionEvalType(t *testing.T) {
 
 func TestGetProblemOptionTags(t *testing.T) {
 	req := &zabbix.GetProblemRequest{Params: zabbix.ProblemParams{}}
-	tags := []zabbix.FilterProblemTags{{Tag: "t", Value: "v", Operator: "1"}}
+	tags := []zabbix.FilterProblemTags{{Tag: "t", Value: "v", Operator: 1}}
 	zabbix.GetProblemOptionTags(tags)(req)
 	if !reflect.DeepEqual(req.Params.Tags, tags) {
 		t.Errorf("expected Tags %v, got %v", tags, req.Params.Tags)

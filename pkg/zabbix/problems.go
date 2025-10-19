@@ -13,19 +13,19 @@ import (
 const MethodProblemGet = "problem.get"
 
 // FilterProblemTags returns only problems with given tags. Exact match by tag and case-insensitive search by value and operator.
-// Format: [{"tag": "<tag>", "value": "<value>", "operator": "<operator>"}, ...].
+// Format: [{"tag": "<tag>", "value": "<value>", "operator": <operator>}, ...].
 // An empty array returns all problems.
 // Possible operator types:
 // 0 - (default) Like;
 // 1 - Equal;
 // 2 - Not like;
-// 3 - Not equal
+// 3 - Not equal;
 // 4 - Exists;
 // 5 - Not exists.
 type FilterProblemTags struct {
 	Tag      string `json:"tag"      yaml:"tag"`
 	Value    string `json:"value"    yaml:"value"`
-	Operator string `json:"operator" yaml:"operator"`
+	Operator int    `json:"operator" yaml:"operator"`
 }
 
 // ProblemParams represents the params for a problem.get request.
@@ -287,6 +287,13 @@ type HostInfo struct {
 	// Add other host properties here if needed, e.g., Host string `json:"host"` (technical name)
 }
 
+// ProblemURL represents a URL associated with a problem from media types.
+// API Reference: problem object URLs property.
+type ProblemURL struct {
+	Name string `json:"name"` // Name/label of the URL
+	URL  string `json:"url"`  // The actual URL with macros expanded
+}
+
 // Problem represents a Zabbix problem, potentially with additional data from select queries.
 // API Reference: problem object, problem.get method.
 // Most fields are Readonly.
@@ -301,6 +308,7 @@ type Problem struct {
 	Name         string `json:"name"`                    // Readonly: Problem name.
 	Acknowledged string `json:"acknowledged"`            // Readonly: Whether the problem event is acknowledged ("0" or "1").
 	Severity     string `json:"severity"`                // Readonly: Current severity of the problem (e.g., "0"-"5").
+	UserID       string `json:"userid,omitempty"`        // Readonly: ID of the user who generated the event (internal events only).
 
 	// Recovery information
 	Rclock   string `json:"r_clock,omitempty"`   // Readonly: Time when the problem was resolved (timestamp).
@@ -317,6 +325,9 @@ type Problem struct {
 	Opdata        string `json:"opdata,omitempty"`           // Readonly: Operational data of the problem.
 	Suppressed    string `json:"suppressed"`                 // Readonly: Whether the problem event is suppressed ("0" or "1").
 	SuppressUntil string `json:"suppress_until,omitempty"`   // Readonly: Timestamp until when the problem event is suppressed (problem's own suppression time).
+
+	// URLs from media types
+	URLs []ProblemURL `json:"urls,omitempty"` // Readonly: URLs from active media types with event menu entry enabled.
 
 	// Fields populated by select queries
 	Acknowledges    []AcknowledgeEntry     `json:"acknowledges,omitempty"`
