@@ -13,13 +13,14 @@ const defaultConfigurationExportFormat = "yaml"
 
 // ConfigurationExportOptions is the options struct to export configuration.
 type ConfigurationExportOptions struct {
-	GroupsID     []string `json:"groups,omitempty"`     // (array) IDs of host groups to export.
-	HostsID      []string `json:"hosts,omitempty"`      // (array) IDs of hosts to export.
-	ImagesID     []string `json:"images,omitempty"`     // (array) IDs of images to export.
-	MapsID       []string `json:"maps,omitempty"`       // (array) IDs of maps to export.
-	MediaTypesID []string `json:"mediaTypes,omitempty"` // (array) IDs of media types to export.
-	TemplatesID  []string `json:"templates,omitempty"`  // (array) IDs of templates to export.
-	DashboardsID []string `json:"dashboards,omitempty"` // (array) IDs of dashboards to export.
+	HostGroupsID     []string `json:"host_groups,omitempty"`     // (array) IDs of host groups to export (Zabbix 6.2+).
+	TemplateGroupsID []string `json:"template_groups,omitempty"` // (array) IDs of template groups to export (Zabbix 6.2+).
+	HostsID          []string `json:"hosts,omitempty"`           // (array) IDs of hosts to export.
+	ImagesID         []string `json:"images,omitempty"`          // (array) IDs of images to export.
+	MapsID           []string `json:"maps,omitempty"`            // (array) IDs of maps to export.
+	MediaTypesID     []string `json:"mediaTypes,omitempty"`      // (array) IDs of media types to export.
+	TemplatesID      []string `json:"templates,omitempty"`       // (array) IDs of templates to export.
+	DashboardsID     []string `json:"dashboards,omitempty"`      // (array) IDs of dashboards to export.
 }
 
 // ConfigurationExportParams is the params struct to export configuration.
@@ -58,10 +59,17 @@ func NewConfigurationExportRequest(options ...ConfigurationExportRequestOption) 
 	return c
 }
 
-// ExportRequestOptionGroupsID returns a ConfigurationExportRequestOption for groups.
-func ExportRequestOptionGroupsID(groupsID []string) ConfigurationExportRequestOption {
+// ExportRequestOptionHostGroupsID returns a ConfigurationExportRequestOption for host groups.
+func ExportRequestOptionHostGroupsID(groupsID []string) ConfigurationExportRequestOption {
 	return func(c *ConfigurationExportRequest) {
-		c.Params.Options.GroupsID = groupsID
+		c.Params.Options.HostGroupsID = groupsID
+	}
+}
+
+// ExportRequestOptionTemplateGroupsID returns a ConfigurationExportRequestOption for template groups.
+func ExportRequestOptionTemplateGroupsID(groupsID []string) ConfigurationExportRequestOption {
+	return func(c *ConfigurationExportRequest) {
+		c.Params.Options.TemplateGroupsID = groupsID
 	}
 }
 

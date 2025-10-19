@@ -24,13 +24,22 @@ func TestNewConfigurationExport(t *testing.T) {
 		require.NotEqual(t, 0, c.ID)
 	})
 
-	t.Run("ExportRequestOptionGroupsID", func(t *testing.T) {
+	t.Run("ExportRequestOptionHostGroupsID", func(t *testing.T) {
 		t.Parallel()
-		c := zabbix.NewConfigurationExportRequest(zabbix.ExportRequestOptionGroupsID([]string{"1", "2"}))
+		c := zabbix.NewConfigurationExportRequest(zabbix.ExportRequestOptionHostGroupsID([]string{"1", "2"}))
 		require.NotNil(t, c)
 		require.Equal(t, "", c.Auth)
 		require.NotEqual(t, 0, c.ID)
-		require.Equal(t, []string{"1", "2"}, c.Params.Options.GroupsID)
+		require.Equal(t, []string{"1", "2"}, c.Params.Options.HostGroupsID)
+	})
+
+	t.Run("ExportRequestOptionTemplateGroupsID", func(t *testing.T) {
+		t.Parallel()
+		c := zabbix.NewConfigurationExportRequest(zabbix.ExportRequestOptionTemplateGroupsID([]string{"3", "4"}))
+		require.NotNil(t, c)
+		require.Equal(t, "", c.Auth)
+		require.NotEqual(t, 0, c.ID)
+		require.Equal(t, []string{"3", "4"}, c.Params.Options.TemplateGroupsID)
 	})
 
 	t.Run("ExportRequestOptionHostsID", func(t *testing.T) {
@@ -108,23 +117,27 @@ func TestNewConfigurationExport(t *testing.T) {
 	t.Run("ExportRequestOptionAll", func(t *testing.T) {
 		t.Parallel()
 		c := zabbix.NewConfigurationExportRequest(
-			zabbix.ExportRequestOptionGroupsID([]string{"1", "2"}),
+			zabbix.ExportRequestOptionHostGroupsID([]string{"1", "2"}),
+			zabbix.ExportRequestOptionTemplateGroupsID([]string{"3", "4"}),
 			zabbix.ExportRequestOptionHostsID([]string{"1", "2"}),
 			zabbix.ExportRequestOptionImagesID([]string{"1", "2"}),
 			zabbix.ExportRequestOptionMapsID([]string{"1", "2"}),
 			zabbix.ExportRequestOptionMediaTypesID([]string{"1", "2"}),
 			zabbix.ExportRequestOptionTemplatesID([]string{"1", "2"}),
+			zabbix.ExportRequestOptionDashboardsID([]string{"5", "6"}),
 			zabbix.ExportRequestOptionYAMLFormat(),
 		)
 		require.NotNil(t, c)
 		require.Equal(t, "", c.Auth)
 		require.NotEqual(t, 0, c.ID)
-		require.Equal(t, []string{"1", "2"}, c.Params.Options.GroupsID)
+		require.Equal(t, []string{"1", "2"}, c.Params.Options.HostGroupsID)
+		require.Equal(t, []string{"3", "4"}, c.Params.Options.TemplateGroupsID)
 		require.Equal(t, []string{"1", "2"}, c.Params.Options.HostsID)
 		require.Equal(t, []string{"1", "2"}, c.Params.Options.ImagesID)
 		require.Equal(t, []string{"1", "2"}, c.Params.Options.MapsID)
 		require.Equal(t, []string{"1", "2"}, c.Params.Options.MediaTypesID)
 		require.Equal(t, []string{"1", "2"}, c.Params.Options.TemplatesID)
+		require.Equal(t, []string{"5", "6"}, c.Params.Options.DashboardsID)
 		require.Equal(t, "yaml", c.Params.Format)
 	})
 }
@@ -139,24 +152,26 @@ func TestConfigurationExportRequestMarshal(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, payload)
 		require.Contains(t, string(payload), "templates")
-		require.NotContains(t, string(payload), "groups")
+		require.NotContains(t, string(payload), "host_groups")
+		require.NotContains(t, string(payload), "template_groups")
 		require.NotContains(t, string(payload), "hosts")
 		require.NotContains(t, string(payload), "images")
 		require.NotContains(t, string(payload), "maps")
 		require.NotContains(t, string(payload), "mediaTypes")
 	})
 
-	t.Run("An empty option should not be take in account", func(t *testing.T) {
+	t.Run("An empty option should not be taken into account", func(t *testing.T) {
 		t.Parallel()
 		c := zabbix.NewConfigurationExportRequest(
 			zabbix.ExportRequestOptionTemplatesID([]string{"1", "2"}),
-			zabbix.ExportRequestOptionGroupsID([]string{}),
+			zabbix.ExportRequestOptionHostGroupsID([]string{}),
 		)
 		payload, err := json.Marshal(c)
 		require.NoError(t, err)
 		require.NotEmpty(t, payload)
 		require.Contains(t, string(payload), "templates")
-		require.NotContains(t, string(payload), "groups")
+		require.NotContains(t, string(payload), "host_groups")
+		require.NotContains(t, string(payload), "template_groups")
 		require.NotContains(t, string(payload), "hosts")
 		require.NotContains(t, string(payload), "images")
 		require.NotContains(t, string(payload), "maps")

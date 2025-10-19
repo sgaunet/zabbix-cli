@@ -16,7 +16,32 @@ type importGraphs struct {
 	DeleteMissing  bool `json:"deleteMissing"`
 }
 
-type importGroups struct {
+type importHostGroups struct {
+	CreateMissing  bool `json:"createMissing"`
+	UpdateExisting bool `json:"updateExisting"`
+}
+
+type importTemplateGroups struct {
+	CreateMissing  bool `json:"createMissing"`
+	UpdateExisting bool `json:"updateExisting"`
+}
+
+type importHosts struct {
+	CreateMissing  bool `json:"createMissing"`
+	UpdateExisting bool `json:"updateExisting"`
+}
+
+type importImages struct {
+	CreateMissing  bool `json:"createMissing"`
+	UpdateExisting bool `json:"updateExisting"`
+}
+
+type importMaps struct {
+	CreateMissing  bool `json:"createMissing"`
+	UpdateExisting bool `json:"updateExisting"`
+}
+
+type importMediaTypes struct {
 	CreateMissing  bool `json:"createMissing"`
 	UpdateExisting bool `json:"updateExisting"`
 }
@@ -64,9 +89,14 @@ type importValueMaps struct {
 type rules struct {
 	DiscoveryRules     importDiscoveryRules     `json:"discoveryRules"`
 	Graphs             importGraphs             `json:"graphs"`
-	Groups             importGroups             `json:"groups"`
+	HostGroups         importHostGroups         `json:"host_groups"`
+	TemplateGroups     importTemplateGroups     `json:"template_groups"`
+	Hosts              importHosts              `json:"hosts"`
 	HTTPTests          importHTTPTests          `json:"httptests"`
+	Images             importImages             `json:"images"`
 	Items              importItems              `json:"items"`
+	Maps               importMaps               `json:"maps"`
+	MediaTypes         importMediaTypes         `json:"mediaTypes"`
 	TemplateLinkage    importTemplateLinkage    `json:"templateLinkage"`
 	Templates          importTemplates          `json:"templates"`
 	TemplateDashboards importTemplateDashboards `json:"templateDashboards"`
@@ -92,9 +122,14 @@ func rulesAllTrue() rules {
 	return rules{
 		DiscoveryRules:     importDiscoveryRules{CreateMissing: true, UpdateExisting: true, DeleteMissing: true},
 		Graphs:             importGraphs{CreateMissing: true, UpdateExisting: true, DeleteMissing: true},
-		Groups:             importGroups{CreateMissing: true, UpdateExisting: true},
+		HostGroups:         importHostGroups{CreateMissing: true, UpdateExisting: true},
+		TemplateGroups:     importTemplateGroups{CreateMissing: true, UpdateExisting: true},
+		Hosts:              importHosts{CreateMissing: true, UpdateExisting: true},
 		HTTPTests:          importHTTPTests{CreateMissing: true, UpdateExisting: true, DeleteMissing: true},
+		Images:             importImages{CreateMissing: true, UpdateExisting: true},
 		Items:              importItems{CreateMissing: true, UpdateExisting: true, DeleteMissing: true},
+		Maps:               importMaps{CreateMissing: true, UpdateExisting: true},
+		MediaTypes:         importMediaTypes{CreateMissing: true, UpdateExisting: true},
 		TemplateLinkage:    importTemplateLinkage{CreateMissing: true, DeleteExisting: true},
 		Templates:          importTemplates{CreateMissing: true, UpdateExisting: true},
 		TemplateDashboards: importTemplateDashboards{CreateMissing: true, UpdateExisting: true, DeleteMissing: true},
