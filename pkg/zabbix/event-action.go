@@ -9,7 +9,9 @@ type EventAction int
 // 2 - acknowledge event;
 // 4 - add message;
 // 8 - change severity;
-// 16 - unacknowledge event.
+// 16 - unacknowledge event;
+// 32 - suppress event;
+// 64 - unsuppress event.
 // This is a bitmask field; any sum of possible bitmap values is acceptable (for example, 6 for acknowledge event and add message).
 
 const (
@@ -23,10 +25,14 @@ const (
 	ChangeSeverity EventAction = 8
 	// Unacknowledge indicates the action to unacknowledge an event.
 	Unacknowledge  EventAction = 16
+	// Suppress indicates the action to suppress an event.
+	Suppress       EventAction = 32
+	// Unsuppress indicates the action to unsuppress an event.
+	Unsuppress     EventAction = 64
 )
 
-// RettrieveActions returns the list of actions to perform on the event.
-func RettrieveActions(action EventAction) []EventAction {
+// RetrieveActions returns the list of actions to perform on the event.
+func RetrieveActions(action EventAction) []EventAction {
 	var actions []EventAction
 	if action&CloseProblem == CloseProblem {
 		actions = append(actions, CloseProblem)
@@ -42,6 +48,12 @@ func RettrieveActions(action EventAction) []EventAction {
 	}
 	if action&Unacknowledge == Unacknowledge {
 		actions = append(actions, Unacknowledge)
+	}
+	if action&Suppress == Suppress {
+		actions = append(actions, Suppress)
+	}
+	if action&Unsuppress == Unsuppress {
+		actions = append(actions, Unsuppress)
 	}
 	return actions
 }
