@@ -107,6 +107,25 @@ func (z *Client) HostGroupGet(ctx context.Context, request *HostGroupGetRequest)
 	return &response, nil
 }
 
+// HostGroupCreate sends a hostgroup.create request to the Zabbix API.
+func (z *Client) HostGroupCreate(ctx context.Context, request *HostGroupCreateRequest) (*HostGroupCreateResponse, error) {
+	statusCode, respBody, err := z.postRequest(ctx, request)
+	if err != nil {
+		return nil, fmt.Errorf("API request failed for hostgroup.create: %w", err)
+	}
+
+	var response HostGroupCreateResponse
+	if err := handleRawResponse(statusCode, respBody, "hostgroup.create", &response); err != nil {
+		return nil, err
+	}
+
+	if response.Error != nil && response.Error.Code != 0 {
+		return nil, response.Error
+	}
+
+	return &response, nil
+}
+
 // DashboardGet sends a dashboard.get request to the Zabbix API.
 // The request object should be fully populated by the caller, including Auth and ID.
 func (z *Client) DashboardGet(ctx context.Context, request *DashboardGetRequest) (*DashboardGetResponse, error) {
