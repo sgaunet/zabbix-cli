@@ -1,7 +1,7 @@
 package zabbix
 
 // Dashboard represents the Zabbix dashboard API object.
-// See: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/dashboard/object#dashboard
+// See: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/dashboard/object#dashboard
 type Dashboard struct {
 	DashboardID   string          `json:"dashboardid,omitempty"`
 	Name          string          `json:"name"`
@@ -15,7 +15,7 @@ type Dashboard struct {
 }
 
 // DashboardPage represents a dashboard page.
-// See: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/dashboard/object#dashboard-page
+// See: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/dashboard/object#dashboard-page
 type DashboardPage struct {
 	DashboardPageID string   `json:"dashboard_pageid,omitempty"`
 	Name            string   `json:"name,omitempty"`
@@ -24,7 +24,7 @@ type DashboardPage struct {
 }
 
 // Widget represents a dashboard widget.
-// See: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/dashboard/object#widget
+// See: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/dashboard/object#widget
 type Widget struct {
 	WidgetID string        `json:"widgetid,omitempty"`
 	Type     string        `json:"type"`                // Widget type.
@@ -38,11 +38,11 @@ type Widget struct {
 }
 
 // WidgetField represents a single configuration field in a dashboard widget.
-// See: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/dashboard/object#widget-field
+// See: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/dashboard/object#widget-field
 type WidgetField struct {
-	Type  string      `json:"type"`            // Field type (determines how value is interpreted).
-	Name  string      `json:"name"`            // Field name (e.g., "groupids", "severities", "tags").
-	Value interface{} `json:"value,omitempty"` // Field value (can be string, int, or complex structure depending on field type).
+	Type  string `json:"type"`            // Field type (determines how value is interpreted).
+	Name  string `json:"name"`            // Field name (e.g., "groupids", "severities", "tags").
+	Value any    `json:"value,omitempty"` // Field value (can be string, int, or complex structure depending on field type).
 }
 
 // DashboardUser represents dashboard sharing with a user.
