@@ -39,9 +39,15 @@ type Widget struct {
 
 // WidgetField represents a single configuration field in a dashboard widget.
 // See: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/dashboard/object#widget-field
+//
+// Note: The Zabbix API specifies Type as an integer (0-13), but this implementation uses string
+// and relies on the Name field for widget configuration parsing. The integer type values are:
+// 0=Integer, 1=String, 2=Host group, 3=Host, 4=Item, 5=Item prototype, 6=Graph,
+// 7=Graph prototype, 8=Map, 9=Service, 10=SLA, 11=User, 12=Action, 13=Media type.
+// This implementation's Name-based approach is more robust for practical widget parsing.
 type WidgetField struct {
-	Type  string `json:"type"`            // Field type (determines how value is interpreted).
-	Name  string `json:"name"`            // Field name (e.g., "groupids", "severities", "tags").
+	Type  string `json:"type"`            // Field type identifier (API spec: integer 0-13, we accept string for compatibility).
+	Name  string `json:"name"`            // Field name (e.g., "groupids", "severities", "tags") - used for field identification.
 	Value any    `json:"value,omitempty"` // Field value (can be string, int, or complex structure depending on field type).
 }
 
