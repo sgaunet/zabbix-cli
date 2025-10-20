@@ -157,9 +157,10 @@ func extractTags(fields []WidgetField) []FilterProblemTags {
 				tagMap[index].Value = valueStr
 			case "operator":
 				// Convert string to int for operator
-			if operatorInt, err := strconv.Atoi(valueStr); err == nil {
-				tagMap[index].Operator = operatorInt
-			}
+				if operatorInt, err := strconv.Atoi(valueStr); err == nil {
+					tagMap[index].Operator = operatorInt
+				}
+				// Note: Invalid operator values default to 0 (Like) which is safe
 			}
 		}
 	}
