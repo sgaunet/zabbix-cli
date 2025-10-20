@@ -254,44 +254,44 @@ func TestProblem_GetDurationStr(t *testing.T) {
 }
 
 func TestProblem_GetAcknowledge(t *testing.T) {
-	p := &zabbix.Problem{Acknowledged: "1"}
+	p := &zabbix.Problem{Acknowledged: zabbix.BoolString(true)}
 	if !p.GetAcknowledge() {
 		t.Errorf("expected acknowledged true")
 	}
-	p.Acknowledged = "0"
+	p.Acknowledged = zabbix.BoolString(false)
 	if p.GetAcknowledge() {
 		t.Errorf("expected acknowledged false")
 	}
 }
 
 func TestProblem_GetSuppressed(t *testing.T) {
-	p := &zabbix.Problem{Suppressed: "1"}
+	p := &zabbix.Problem{Suppressed: zabbix.BoolString(true)}
 	if !p.GetSuppressed() {
 		t.Errorf("expected suppressed true")
 	}
-	p.Suppressed = "0"
+	p.Suppressed = zabbix.BoolString(false)
 	if p.GetSuppressed() {
 		t.Errorf("expected suppressed false")
 	}
 }
 
 func TestProblem_GetAcknowledgeStr(t *testing.T) {
-	p := &zabbix.Problem{Acknowledged: "1"}
+	p := &zabbix.Problem{Acknowledged: zabbix.BoolString(true)}
 	if p.GetAcknowledgeStr() != "Yes" {
 		t.Errorf("expected Yes for acknowledged")
 	}
-	p.Acknowledged = "0"
+	p.Acknowledged = zabbix.BoolString(false)
 	if p.GetAcknowledgeStr() != "No" {
 		t.Errorf("expected No for not acknowledged")
 	}
 }
 
 func TestProblem_GetSuppressedStr(t *testing.T) {
-	p := &zabbix.Problem{Suppressed: "1"}
+	p := &zabbix.Problem{Suppressed: zabbix.BoolString(true)}
 	if p.GetSuppressedStr() != "Yes" {
 		t.Errorf("expected Yes for suppressed")
 	}
-	p.Suppressed = "0"
+	p.Suppressed = zabbix.BoolString(false)
 	if p.GetSuppressedStr() != "No" {
 		t.Errorf("expected No for not suppressed")
 	}

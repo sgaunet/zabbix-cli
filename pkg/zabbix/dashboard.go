@@ -6,9 +6,9 @@ type Dashboard struct {
 	DashboardID   string          `json:"dashboardid,omitempty"`
 	Name          string          `json:"name"`
 	UserID        string          `json:"userid,omitempty"`        // Owner of the dashboard.
-	Private       string          `json:"private,omitempty"`       // Type of dashboard sharing. 0 - (default) public; 1 - private.
+	Private       BoolString      `json:"private,omitempty"`       // Type of dashboard sharing. 0 - (default) public; 1 - private.
 	DisplayPeriod string          `json:"display_period,omitempty"` // Display period in seconds. Default: 30.
-	AutoStart     string          `json:"auto_start,omitempty"`    // Automatic slideshow. 0 - (default) disabled; 1 - enabled.
+	AutoStart     BoolString      `json:"auto_start,omitempty"`    // Automatic slideshow. 0 - (default) disabled; 1 - enabled.
 	Pages         []DashboardPage `json:"pages,omitempty"`         // Dashboard pages.
 	Users         []DashboardUser `json:"users,omitempty"`         // Dashboard sharing with users.
 	UserGroups    []DashboardUserGroup `json:"userGroups,omitempty"` // Dashboard sharing with user groups.

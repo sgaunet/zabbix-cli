@@ -49,6 +49,50 @@ func (si *StringInt64) Int64() int64 {
 	return int64(*si)
 }
 
+// BoolString is a custom type that can unmarshal boolean JSON values that come as "0"/"1" strings or actual booleans
+type BoolString bool
+
+// UnmarshalJSON is a custom unmarshaler for BoolString to handle both string and boolean values
+func (bs *BoolString) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as boolean first
+	var boolValue bool
+	if err := json.Unmarshal(data, &boolValue); err == nil {
+		*bs = BoolString(boolValue)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as string
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err != nil {
+		return fmt.Errorf("failed to unmarshal BoolString from string: %w", err)
+	}
+
+	// Convert string to boolean: "1" = true, "0" = false
+	switch stringValue {
+	case "1":
+		*bs = BoolString(true)
+	case "0":
+		*bs = BoolString(false)
+	default:
+		return fmt.Errorf("invalid BoolString value '%s': expected '0', '1', true, or false", stringValue)
+	}
+
+	return nil
+}
+
+// MarshalJSON is a custom marshaler for BoolString to output as "0"/"1" strings for API compatibility
+func (bs BoolString) MarshalJSON() ([]byte, error) {
+	if bs {
+		return []byte(`"1"`), nil
+	}
+	return []byte(`"0"`), nil
+}
+
+// Bool converts BoolString back to a standard bool value
+func (bs BoolString) Bool() bool {
+	return bool(bs)
+}
+
 // MaintenanceType represents the type of maintenance.
 type MaintenanceType int
 

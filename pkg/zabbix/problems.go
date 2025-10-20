@@ -306,7 +306,7 @@ type Problem struct {
 	Clock        StringInt64 `json:"clock"`                   // Readonly: Unix timestamp when the problem event was created.
 	Ns           StringInt64 `json:"ns"`                      // Readonly: Nanoseconds when the problem event was created.
 	Name         string      `json:"name"`                    // Readonly: Problem name.
-	Acknowledged string      `json:"acknowledged"`            // Readonly: Whether the problem event is acknowledged ("0" or "1").
+	Acknowledged BoolString  `json:"acknowledged"`            // Readonly: Whether the problem event is acknowledged ("0" or "1").
 	Severity     string      `json:"severity"`                // Readonly: Current severity of the problem (e.g., "0"-"5").
 	UserID       string      `json:"userid,omitempty"`        // Readonly: ID of the user who generated the event (internal events only).
 
@@ -323,7 +323,7 @@ type Problem struct {
 
 	// Operational and suppression data
 	Opdata        string      `json:"opdata,omitempty"`         // Readonly: Operational data of the problem.
-	Suppressed    string      `json:"suppressed"`               // Readonly: Whether the problem event is suppressed ("0" or "1").
+	Suppressed    BoolString  `json:"suppressed"`               // Readonly: Whether the problem event is suppressed ("0" or "1").
 	SuppressUntil StringInt64 `json:"suppress_until,omitempty"` // Readonly: Unix timestamp until when the problem event is suppressed.
 
 	// URLs from media types
@@ -378,12 +378,12 @@ func (p *Problem) GetDurationStr() string {
 
 // GetAcknowledge returns whether the problem is acknowledged.
 func (p *Problem) GetAcknowledge() bool {
-	return p.Acknowledged == "1"
+	return p.Acknowledged.Bool()
 }
 
 // GetSuppressed returns whether the problem is suppressed.
 func (p *Problem) GetSuppressed() bool {
-	return p.Suppressed == "1"
+	return p.Suppressed.Bool()
 }
 
 // GetAcknowledgeStr returns the acknowledge state as a string.
