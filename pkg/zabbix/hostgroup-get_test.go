@@ -151,7 +151,7 @@ func TestHostGroupGetWithSelectExtend(t *testing.T) {
 
 		// Verify Select parameters are "extend"
 		assert.Equal(t, "extend", request.Params.SelectHosts)
-		assert.Equal(t, "extend", request.Params.SelectGroupDiscovery)
+		assert.Equal(t, "extend", request.Params.SelectGroupDiscoveries)
 
 		response := HostGroupGetResponse{
 			JSONRPC: JSONRPC,
@@ -173,7 +173,7 @@ func TestHostGroupGetWithSelectExtend(t *testing.T) {
 
 	request := NewHostGroupGetRequest(
 		WithHostGroupGetSelectHosts("extend"),
-		WithHostGroupGetSelectGroupDiscovery("extend"),
+		WithHostGroupGetSelectGroupDiscoveries("extend"),
 		WithHostGroupGetAuth("test-auth-token"),
 	)
 
@@ -557,9 +557,8 @@ func TestHostGroupGetAllSelectOptions(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify all Select parameters are set
-		assert.Equal(t, "extend", request.Params.SelectGroupDiscovery)
+		assert.Equal(t, "extend", request.Params.SelectGroupDiscoveries)
 		assert.Equal(t, "extend", request.Params.SelectHosts)
-		assert.Equal(t, "extend", request.Params.SelectHTTPTests)
 		assert.Equal(t, "extend", request.Params.SelectItems)
 		assert.Equal(t, "extend", request.Params.SelectTriggers)
 
@@ -582,9 +581,8 @@ func TestHostGroupGetAllSelectOptions(t *testing.T) {
 	}
 
 	request := NewHostGroupGetRequest(
-		WithHostGroupGetSelectGroupDiscovery("extend"),
+		WithHostGroupGetSelectGroupDiscoveries("extend"),
 		WithHostGroupGetSelectHosts("extend"),
-		WithHostGroupGetSelectHTTPTests("extend"),
 		WithHostGroupGetSelectItems("extend"),
 		WithHostGroupGetSelectTriggers("extend"),
 		WithHostGroupGetAuth("test-auth-token"),

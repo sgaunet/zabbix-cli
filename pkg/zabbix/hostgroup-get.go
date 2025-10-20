@@ -24,9 +24,8 @@ type HostGroupGetParams struct {
 	WithTriggers            bool     `json:"with_triggers,omitempty"`            // Return only host groups that contain triggers.
 	Editable                bool     `json:"editable,omitempty"`                 // Return only host groups that are available for writing.
 
-	SelectGroupDiscovery    any `json:"selectGroupDiscovery,omitempty"`    // "extend" or array of fields
+	SelectGroupDiscoveries  any `json:"selectGroupDiscoveries,omitempty"`  // "extend" or array of fields (renamed from selectGroupDiscovery to match API 7.2 spec)
 	SelectHosts             any `json:"selectHosts,omitempty"`             // "extend" or array of fields
-	SelectHTTPTests         any `json:"selectHttptests,omitempty"`         // "extend" or array of fields
 	SelectItems             any `json:"selectItems,omitempty"`             // "extend" or array of fields
 	SelectMonitoredHosts    any `json:"selectMonitoredHosts,omitempty"`    // "extend" or array of fields
 	SelectRealHosts         any `json:"selectRealHosts,omitempty"`         // "extend" or array of fields
@@ -160,19 +159,14 @@ func WithHostGroupGetEditable(flag bool) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.Editable = flag }
 }
 
-// WithHostGroupGetSelectGroupDiscovery sets the selectGroupDiscovery parameter.
-func WithHostGroupGetSelectGroupDiscovery(query any) HostGroupGetOption {
-	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectGroupDiscovery = query }
+// WithHostGroupGetSelectGroupDiscoveries sets the selectGroupDiscoveries parameter (renamed from selectGroupDiscovery in API 7.2).
+func WithHostGroupGetSelectGroupDiscoveries(query any) HostGroupGetOption {
+	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectGroupDiscoveries = query }
 }
 
 // WithHostGroupGetSelectHosts sets the selectHosts parameter.
 func WithHostGroupGetSelectHosts(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectHosts = query }
-}
-
-// WithHostGroupGetSelectHTTPTests sets the selectHttptests parameter.
-func WithHostGroupGetSelectHTTPTests(query any) HostGroupGetOption {
-	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectHTTPTests = query }
 }
 
 // WithHostGroupGetSelectItems sets the selectItems parameter.
