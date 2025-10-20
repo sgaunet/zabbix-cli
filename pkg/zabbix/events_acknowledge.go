@@ -24,10 +24,10 @@ type EventsAcknowledgeParams struct {
 
 	// This is a bitmask field; any sum of possible bitmap values is acceptable (for example, 6 for acknowledge event and add message).
 	Action  int    `json:"action"`
-	Message string `json:"message"`
+	Message string `json:"message,omitempty"` // Required only if action contains 'add message' flag (4).
 
 	// 	New severity for events.
-	Severity Severity `json:"severity"` // Required, if action contains 'change severity' flag.
+	Severity Severity `json:"severity,omitempty"` // Required only if action contains 'change severity' flag (8).
 }
 
 // EventAcknowledgeRequest represents a request to acknowledge Zabbix events.

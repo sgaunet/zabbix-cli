@@ -149,9 +149,9 @@ type rules struct {
 }
 
 type paramsImport struct {
-	Format string `json:"format"`
-	Rules  rules  `json:"rules"`
-	Source string `json:"source"`
+	Format string `json:"format,omitempty"` // Optional: format of import data (yaml/json/xml)
+	Rules  rules  `json:"rules,omitempty"`  // Optional: import rules (defaults applied by rulesAllTrue())
+	Source string `json:"source"`           // Required: the import data content
 }
 
 type configurationImportCompareRequest struct {

@@ -61,7 +61,7 @@ type ConfigurationExportOptions struct {
 // ConfigurationExportParams is the params struct to export configuration.
 type ConfigurationExportParams struct {
 	Options ConfigurationExportOptions `json:"options"`
-	Format  string                     `json:"format"`
+	Format  string                     `json:"format,omitempty"`
 }
 
 // ConfigurationExportRequest is the request struct to export configuration.
