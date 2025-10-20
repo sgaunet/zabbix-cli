@@ -146,6 +146,26 @@ func (z *Client) DashboardGet(ctx context.Context, request *DashboardGetRequest)
 	return &response, nil
 }
 
+// TemplateGet sends a template.get request to the Zabbix API.
+// The request object should be fully populated by the caller, including Auth and ID.
+func (z *Client) TemplateGet(ctx context.Context, request *TemplateGetRequest) (*TemplateGetResponse, error) {
+	statusCode, respBody, err := z.postRequest(ctx, request)
+	if err != nil {
+		return nil, fmt.Errorf("API request failed for template.get: %w", err)
+	}
+
+	var response TemplateGetResponse
+	if err := handleRawResponse(statusCode, respBody, "template.get", &response); err != nil {
+		return nil, err
+	}
+
+	if response.Error != nil && response.Error.Code != 0 {
+		return nil, response.Error
+	}
+
+	return &response, nil
+}
+
 // Auth returns the auth token
 // that is used to authenticate.
 // This token is initialized during the login process.

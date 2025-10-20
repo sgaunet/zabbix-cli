@@ -58,7 +58,12 @@ var exportCmd = &cobra.Command{
 		}
 		defer z.Logout(ctx) //nolint: errcheck
 
-		res, err := z.GetTemplates(zabbix.GetTemplateOptionFilterByName([]string{templateName}))
+		req := zabbix.NewTemplateGetRequest(
+			zabbix.WithTemplateGetAuth(z.Auth()),
+			zabbix.WithTemplateGetFilter(map[string]any{"name": []string{templateName}}),
+			zabbix.WithTemplateGetOutput("extend"),
+		)
+		res, err := z.TemplateGet(ctx, req)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)
