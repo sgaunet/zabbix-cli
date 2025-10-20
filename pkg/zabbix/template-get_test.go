@@ -1,6 +1,7 @@
 package zabbix_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -15,18 +16,33 @@ import (
 func TestGetTemplateID(t *testing.T) {
 	ts := httptest.NewTLSServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			res := fmt.Sprintf(`{
-				"jsonrpc": "%s",
-				"result": [
-					{
-						"templateid": "10001",
-						"name": "Template OS Linux"
-					}
-				],
-				"id": 1
-			}`, zabbix.JSONRPC)
+			// Read the request to determine if it's login or template.get
+			body := make([]byte, r.ContentLength)
+			r.Body.Read(body)
+
+			var res string
+			if string(body) == "" || len(body) == 0 {
+				// Login request
+				res = fmt.Sprintf(`{"jsonrpc": "%s", "result": "auth-token-12345", "id": 1}`, zabbix.JSONRPC)
+			} else if bytes.Contains(body, []byte("user.login")) {
+				// Login request
+				res = fmt.Sprintf(`{"jsonrpc": "%s", "result": "auth-token-12345", "id": 1}`, zabbix.JSONRPC)
+			} else {
+				// Template.get request
+				res = fmt.Sprintf(`{
+					"jsonrpc": "%s",
+					"result": [
+						{
+							"templateid": "10001",
+							"host": "linux-template",
+							"name": "Template OS Linux"
+						}
+					],
+					"id": 1
+				}`, zabbix.JSONRPC)
+			}
 			w.Header().Add("Content-Type", "application/json")
-			fmt.Fprintln(w, string(res))
+			fmt.Fprintln(w, res)
 		}))
 	defer ts.Close()
 	// get request
@@ -34,9 +50,24 @@ func TestGetTemplateID(t *testing.T) {
 
 	z := zabbix.New("user", "password", ts.URL)
 	z.SetHTTPClient(client)
-	pb, err := z.GetProblems(context.Background())
+	err := z.Login(context.Background())
 	require.NoError(t, err)
-	require.NotEmpty(t, pb)
+
+	req := zabbix.NewTemplateGetRequest(
+		zabbix.WithTemplateGetFilter(map[string]any{"name": []string{"Template OS Linux"}}),
+		zabbix.WithTemplateGetOutput("extend"),
+	)
+	resp, err := z.TemplateGet(context.Background(), req)
+	require.NoError(t, err)
+	require.NotEmpty(t, resp)
+
+	// Test GetTemplateID helper method
+	ids := resp.GetTemplateID()
+	require.Equal(t, []string{"10001"}, ids)
+
+	// Test GetTemplateName helper method
+	names := resp.GetTemplateName()
+	require.Equal(t, []string{"Template OS Linux"}, names)
 }
 
 func TestGetTemplateID_Internal(t *testing.T) {
