@@ -213,14 +213,14 @@ type MaintenanceResponse struct {
 type MaintenanceGetParams struct {
 	CommonGetParams
 
-	GroupIDs          []string    `json:"groupids,omitempty"`
-	HostIDs           []string    `json:"hostids,omitempty"`
-	MaintenanceIDs    []string    `json:"maintenanceids,omitempty"`
-	SelectGroups      interface{} `json:"selectGroups,omitempty"`      // "extend" or array of fields
-	SelectHosts       interface{} `json:"selectHosts,omitempty"`       // "extend" or array of fields
-	SelectTags        interface{} `json:"selectTags,omitempty"`        // "extend" or array of fields
-	SelectTimePeriods interface{} `json:"selectTimeperiods,omitempty"` // "extend" or array of fields
-	LimitSelects      int         `json:"limitSelects,omitempty"`      // Limits the number of records returned by subselects
+	GroupIDs          []string `json:"groupids,omitempty"`
+	HostIDs           []string `json:"hostids,omitempty"`
+	MaintenanceIDs    []string `json:"maintenanceids,omitempty"`
+	SelectGroups      any      `json:"selectGroups,omitempty"`      // "extend" or array of fields
+	SelectHosts       any      `json:"selectHosts,omitempty"`       // "extend" or array of fields
+	SelectTags        any      `json:"selectTags,omitempty"`        // "extend" or array of fields
+	SelectTimePeriods any      `json:"selectTimeperiods,omitempty"` // "extend" or array of fields
+	LimitSelects      int      `json:"limitSelects,omitempty"`      // Limits the number of records returned by subselects
 }
 
 // MaintenanceCreateRequest represents a request to create a maintenance.

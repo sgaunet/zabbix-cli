@@ -174,14 +174,14 @@ func TestMaintenanceGetWithSelectArray(t *testing.T) {
 		}
 
 		// Verify Select parameters are arrays
-		groupsArray, ok := req.Params.SelectGroups.([]interface{})
+		groupsArray, ok := req.Params.SelectGroups.([]any)
 		if !ok {
 			t.Errorf("Expected SelectGroups to be array, got %T", req.Params.SelectGroups)
 		} else if len(groupsArray) != 2 {
 			t.Errorf("Expected SelectGroups array length 2, got %d", len(groupsArray))
 		}
 
-		tagsArray, ok := req.Params.SelectTags.([]interface{})
+		tagsArray, ok := req.Params.SelectTags.([]any)
 		if !ok {
 			t.Errorf("Expected SelectTags to be array, got %T", req.Params.SelectTags)
 		} else if len(tagsArray) != 2 {
@@ -306,7 +306,7 @@ func TestMaintenanceGetWithFilter(t *testing.T) {
 		client:      &http.Client{},
 	}
 
-	filter := map[string]interface{}{
+	filter := map[string]any{
 		"name": "Test Maintenance",
 	}
 
@@ -363,7 +363,7 @@ func TestMaintenanceGetWithSearch(t *testing.T) {
 		client:      &http.Client{},
 	}
 
-	search := map[string]interface{}{
+	search := map[string]any{
 		"name": "maintenance*",
 	}
 

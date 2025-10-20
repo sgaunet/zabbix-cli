@@ -12,7 +12,6 @@ type HostGroupGetParams struct {
 	MonitoredHosts          bool     `json:"monitored_hosts,omitempty"`          // Return only host groups that contain monitored hosts.
 	RealHosts               bool     `json:"real_hosts,omitempty"`               // Return only host groups that contain hosts.
 	TemplatedHosts          bool     `json:"templated_hosts,omitempty"`          // Return only host groups that contain templates.
-	WithApplications        bool     `json:"with_applications,omitempty"`        // Return only host groups that contain applications.
 	WithGraphs              bool     `json:"with_graphs,omitempty"`              // Return only host groups that contain graphs.
 	WithHistoricalItems     bool     `json:"with_historical_items,omitempty"`    // Return only host groups that contain items with history data.
 	WithHostsAndTemplates   bool     `json:"with_hosts_and_templates,omitempty"` // Return only host groups that contain hosts or templates.
@@ -25,16 +24,15 @@ type HostGroupGetParams struct {
 	WithTriggers            bool     `json:"with_triggers,omitempty"`            // Return only host groups that contain triggers.
 	Editable                bool     `json:"editable,omitempty"`                 // Return only host groups that are available for writing.
 
-	SelectApplications      interface{} `json:"selectApplications,omitempty"`      // "extend" or array of fields
-	SelectGroupDiscovery    interface{} `json:"selectGroupDiscovery,omitempty"`    // "extend" or array of fields
-	SelectHosts             interface{} `json:"selectHosts,omitempty"`             // "extend" or array of fields
-	SelectHTTPTests         interface{} `json:"selectHttptests,omitempty"`         // "extend" or array of fields
-	SelectItems             interface{} `json:"selectItems,omitempty"`             // "extend" or array of fields
-	SelectMonitoredHosts    interface{} `json:"selectMonitoredHosts,omitempty"`    // "extend" or array of fields
-	SelectRealHosts         interface{} `json:"selectRealHosts,omitempty"`         // "extend" or array of fields
-	SelectSimpleGraphItems  interface{} `json:"selectSimpleGraphItems,omitempty"`  // "extend" or array of fields
-	SelectTriggers          interface{} `json:"selectTriggers,omitempty"`          // "extend" or array of fields
-	LimitSelects            int         `json:"limitSelects,omitempty"`            // Limits the number of records returned by subselects.
+	SelectGroupDiscovery    any `json:"selectGroupDiscovery,omitempty"`    // "extend" or array of fields
+	SelectHosts             any `json:"selectHosts,omitempty"`             // "extend" or array of fields
+	SelectHTTPTests         any `json:"selectHttptests,omitempty"`         // "extend" or array of fields
+	SelectItems             any `json:"selectItems,omitempty"`             // "extend" or array of fields
+	SelectMonitoredHosts    any `json:"selectMonitoredHosts,omitempty"`    // "extend" or array of fields
+	SelectRealHosts         any `json:"selectRealHosts,omitempty"`         // "extend" or array of fields
+	SelectSimpleGraphItems  any `json:"selectSimpleGraphItems,omitempty"`  // "extend" or array of fields
+	SelectTriggers          any `json:"selectTriggers,omitempty"`          // "extend" or array of fields
+	LimitSelects            int `json:"limitSelects,omitempty"`            // Limits the number of records returned by subselects.
 }
 
 // HostGroupGetRequest defines the JSON-RPC request structure for hostgroup.get.
@@ -107,11 +105,6 @@ func WithHostGroupGetTemplatedHosts(flag bool) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.TemplatedHosts = flag }
 }
 
-// WithHostGroupGetWithApplications sets the with_applications flag.
-func WithHostGroupGetWithApplications(flag bool) HostGroupGetOption {
-	return func(hgr *HostGroupGetRequest) { hgr.Params.WithApplications = flag }
-}
-
 // WithHostGroupGetWithGraphs sets the with_graphs flag.
 func WithHostGroupGetWithGraphs(flag bool) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.WithGraphs = flag }
@@ -167,48 +160,43 @@ func WithHostGroupGetEditable(flag bool) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.Editable = flag }
 }
 
-// WithHostGroupGetSelectApplications sets the selectApplications parameter.
-func WithHostGroupGetSelectApplications(query interface{}) HostGroupGetOption {
-	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectApplications = query }
-}
-
 // WithHostGroupGetSelectGroupDiscovery sets the selectGroupDiscovery parameter.
-func WithHostGroupGetSelectGroupDiscovery(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectGroupDiscovery(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectGroupDiscovery = query }
 }
 
 // WithHostGroupGetSelectHosts sets the selectHosts parameter.
-func WithHostGroupGetSelectHosts(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectHosts(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectHosts = query }
 }
 
 // WithHostGroupGetSelectHTTPTests sets the selectHttptests parameter.
-func WithHostGroupGetSelectHTTPTests(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectHTTPTests(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectHTTPTests = query }
 }
 
 // WithHostGroupGetSelectItems sets the selectItems parameter.
-func WithHostGroupGetSelectItems(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectItems(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectItems = query }
 }
 
 // WithHostGroupGetSelectMonitoredHosts sets the selectMonitoredHosts parameter.
-func WithHostGroupGetSelectMonitoredHosts(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectMonitoredHosts(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectMonitoredHosts = query }
 }
 
 // WithHostGroupGetSelectRealHosts sets the selectRealHosts parameter.
-func WithHostGroupGetSelectRealHosts(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectRealHosts(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectRealHosts = query }
 }
 
 // WithHostGroupGetSelectSimpleGraphItems sets the selectSimpleGraphItems parameter.
-func WithHostGroupGetSelectSimpleGraphItems(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectSimpleGraphItems(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectSimpleGraphItems = query }
 }
 
 // WithHostGroupGetSelectTriggers sets the selectTriggers parameter.
-func WithHostGroupGetSelectTriggers(query interface{}) HostGroupGetOption {
+func WithHostGroupGetSelectTriggers(query any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.SelectTriggers = query }
 }
 
@@ -220,7 +208,7 @@ func WithHostGroupGetLimitSelects(limit int) HostGroupGetOption {
 // --- Option functions for CommonGetParams (embedded) ---
 
 // WithHostGroupGetOutput sets the output parameter.
-func WithHostGroupGetOutput(output interface{}) HostGroupGetOption {
+func WithHostGroupGetOutput(output any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.Output = output }
 }
 
@@ -230,7 +218,7 @@ func WithHostGroupGetLimit(limit int) HostGroupGetOption {
 }
 
 // WithHostGroupGetFilter sets the filter parameter.
-func WithHostGroupGetFilter(filter map[string]interface{}) HostGroupGetOption {
+func WithHostGroupGetFilter(filter map[string]any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.Filter = filter }
 }
 
@@ -245,7 +233,7 @@ func WithHostGroupGetSortOrder(sortOrder []string) HostGroupGetOption {
 }
 
 // WithHostGroupGetSearch sets the search parameter.
-func WithHostGroupGetSearch(search map[string]interface{}) HostGroupGetOption {
+func WithHostGroupGetSearch(search map[string]any) HostGroupGetOption {
 	return func(hgr *HostGroupGetRequest) { hgr.Params.Search = search }
 }
 

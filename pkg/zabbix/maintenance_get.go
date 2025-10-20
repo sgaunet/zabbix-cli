@@ -55,7 +55,7 @@ func WithMaintenanceGetMaintenanceIDs(maintenanceIDs []string) MaintenanceGetOpt
 }
 
 // WithMaintenanceGetOutput sets the output parameter to control which fields are returned.
-func WithMaintenanceGetOutput(output interface{}) MaintenanceGetOption {
+func WithMaintenanceGetOutput(output any) MaintenanceGetOption {
 	return func(mgr *MaintenanceGetRequest) {
 		mgr.Params.Output = output
 	}
@@ -63,7 +63,7 @@ func WithMaintenanceGetOutput(output interface{}) MaintenanceGetOption {
 
 // WithMaintenanceGetSelectGroups adds the selectGroups parameter to retrieve host groups.
 // Accepts "extend" or an array of field names.
-func WithMaintenanceGetSelectGroups(selectGroups interface{}) MaintenanceGetOption {
+func WithMaintenanceGetSelectGroups(selectGroups any) MaintenanceGetOption {
 	return func(mgr *MaintenanceGetRequest) {
 		mgr.Params.SelectGroups = selectGroups
 	}
@@ -71,7 +71,7 @@ func WithMaintenanceGetSelectGroups(selectGroups interface{}) MaintenanceGetOpti
 
 // WithMaintenanceGetSelectHosts adds the selectHosts parameter to retrieve hosts.
 // Accepts "extend" or an array of field names.
-func WithMaintenanceGetSelectHosts(selectHosts interface{}) MaintenanceGetOption {
+func WithMaintenanceGetSelectHosts(selectHosts any) MaintenanceGetOption {
 	return func(mgr *MaintenanceGetRequest) {
 		mgr.Params.SelectHosts = selectHosts
 	}
@@ -79,7 +79,7 @@ func WithMaintenanceGetSelectHosts(selectHosts interface{}) MaintenanceGetOption
 
 // WithMaintenanceGetSelectTags adds the selectTags parameter to retrieve problem tags.
 // Accepts "extend" or an array of field names.
-func WithMaintenanceGetSelectTags(selectTags interface{}) MaintenanceGetOption {
+func WithMaintenanceGetSelectTags(selectTags any) MaintenanceGetOption {
 	return func(mgr *MaintenanceGetRequest) {
 		mgr.Params.SelectTags = selectTags
 	}
@@ -87,7 +87,7 @@ func WithMaintenanceGetSelectTags(selectTags interface{}) MaintenanceGetOption {
 
 // WithMaintenanceGetSelectTimePeriods adds the selectTimeperiods parameter to retrieve time periods.
 // Accepts "extend" or an array of field names.
-func WithMaintenanceGetSelectTimePeriods(selectTimePeriods interface{}) MaintenanceGetOption {
+func WithMaintenanceGetSelectTimePeriods(selectTimePeriods any) MaintenanceGetOption {
 	return func(mgr *MaintenanceGetRequest) {
 		mgr.Params.SelectTimePeriods = selectTimePeriods
 	}
@@ -136,14 +136,14 @@ func WithMaintenanceGetSortOrder(sortOrder []string) MaintenanceGetOption {
 }
 
 // WithMaintenanceGetFilter sets the filter parameter for the request.
-func WithMaintenanceGetFilter(filter map[string]interface{}) MaintenanceGetOption {
+func WithMaintenanceGetFilter(filter map[string]any) MaintenanceGetOption {
 	return func(mgr *MaintenanceGetRequest) {
 		mgr.Params.Filter = filter
 	}
 }
 
 // WithMaintenanceGetSearch sets the search parameter for the request.
-func WithMaintenanceGetSearch(search map[string]interface{}) MaintenanceGetOption {
+func WithMaintenanceGetSearch(search map[string]any) MaintenanceGetOption {
 	return func(mgr *MaintenanceGetRequest) {
 		mgr.Params.Search = search
 	}
