@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// Documentation of zabbix api: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/configuration/import
+// Documentation of zabbix api: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/configuration/import
 
 const methodConfigurationImport = "configuration.import"
 
@@ -15,7 +15,8 @@ const methodConfigurationImport = "configuration.import"
 // it's the same as configuration.importcompare.
 type configurationImportRequest configurationImportCompareRequest
 
-func newConfigurationImportRequest(source string) *configurationImportRequest {
+// NewConfigurationImportRequest creates a new configuration import request with default rules.
+func NewConfigurationImportRequest(source string) *configurationImportRequest {
 	return &configurationImportRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodConfigurationImport,
@@ -38,7 +39,7 @@ type configurationImportResponse struct {
 
 // Import imports configuration from the given source string.
 func (z *Client) Import(ctx context.Context, source string) (bool, error) {
-	c := newConfigurationImportRequest(source)
+	c := NewConfigurationImportRequest(source)
 	// initialize auth token
 	c.Auth = z.Auth()
 

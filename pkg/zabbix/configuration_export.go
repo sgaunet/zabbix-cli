@@ -7,11 +7,46 @@ import (
 	"net/http"
 )
 
-// Documentation of zabbix api: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/configuration/export
+// Documentation of zabbix api: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/configuration/export
 const methodConfigurationExport = "configuration.export"
 const defaultConfigurationExportFormat = "yaml"
 
-// ConfigurationExportOptions is the options struct to export configuration.
+// ConfigurationExportOptions defines the object types and IDs to export from Zabbix.
+//
+// Supported Object Types (Zabbix API 7.2):
+//   - Host Groups: Groups of hosts for organization (host_groups)
+//   - Template Groups: Groups of templates for organization (template_groups) - Zabbix 6.2+
+//   - Hosts: Individual monitored hosts with their items, triggers, and discovery rules
+//   - Templates: Reusable monitoring templates with items, triggers, graphs, and dashboards
+//   - Images: Custom images used in maps and dashboards
+//   - Maps: Network maps showing topology and status
+//   - Media Types: Notification methods (email, SMS, scripts, webhooks)
+//   - Dashboards: Custom dashboards for data visualization
+//
+// Export Format Support:
+//   - YAML (default): Human-readable format, recommended for version control
+//   - JSON: Machine-readable format for programmatic processing
+//   - XML: Legacy format for backward compatibility
+//
+// ID Validation:
+//   - All ID arrays must contain valid object IDs as strings
+//   - Empty arrays will be omitted from the export request
+//   - Invalid IDs will result in API errors (object not found or no permissions)
+//
+// Example Usage:
+//
+//	// Export a single template in YAML format
+//	data, err := client.Export(ctx,
+//	    zabbix.ExportRequestOptionTemplatesID([]string{"10001"}),
+//	    zabbix.ExportRequestOptionYAMLFormat(),
+//	)
+//
+//	// Export multiple object types in JSON format
+//	data, err := client.Export(ctx,
+//	    zabbix.ExportRequestOptionHostsID([]string{"10084", "10107"}),
+//	    zabbix.ExportRequestOptionTemplatesID([]string{"10001", "10047"}),
+//	    zabbix.ExportRequestOptionJSONFormat(),
+//	)
 type ConfigurationExportOptions struct {
 	HostGroupsID     []string `json:"host_groups,omitempty"`     // (array) IDs of host groups to export (Zabbix 6.2+).
 	TemplateGroupsID []string `json:"template_groups,omitempty"` // (array) IDs of template groups to export (Zabbix 6.2+).

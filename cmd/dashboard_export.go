@@ -11,8 +11,8 @@ import (
 
 var DashboardExportCmd = &cobra.Command{
 	Use:   "export",
-	Short: "Export dashboard to YAML",
-	Long:  `Export a dashboard to YAML format. You can specify the dashboard by name or ID.`,
+	Short: "Export dashboard configuration",
+	Long:  `Export a dashboard configuration in YAML, JSON, or XML format. You can specify the dashboard by name or ID.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
@@ -24,6 +24,12 @@ var DashboardExportCmd = &cobra.Command{
 		// Validate that both are not provided
 		if dashboardName != "" && dashboardID != "" {
 			return fmt.Errorf("cannot specify both --name and --id")
+		}
+
+		// Get format option
+		formatOpt, err := GetFormatOption(dashboardExportFormat)
+		if err != nil {
+			return fmt.Errorf("invalid format: %w", err)
 		}
 
 		// initConfig() should be called by cobra.OnInitialize on the RootCmd.
@@ -76,7 +82,7 @@ var DashboardExportCmd = &cobra.Command{
 
 		// Export the dashboard
 		res, err := z.Export(ctx,
-			zabbix.ExportRequestOptionYAMLFormat(),
+			formatOpt,
 			zabbix.ExportRequestOptionDashboardsID([]string{dashboardIDToExport}),
 		)
 		if err != nil {

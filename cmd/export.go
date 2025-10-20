@@ -4,10 +4,25 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/sgaunet/zabbix-cli/pkg/zabbix"
 	"github.com/spf13/cobra"
 )
+
+// GetFormatOption returns the appropriate export format option based on the format string
+func GetFormatOption(format string) (zabbix.ConfigurationExportRequestOption, error) {
+	switch strings.ToLower(format) {
+	case "yaml":
+		return zabbix.ExportRequestOptionYAMLFormat(), nil
+	case "json":
+		return zabbix.ExportRequestOptionJSONFormat(), nil
+	case "xml":
+		return zabbix.ExportRequestOptionXMLFormat(), nil
+	default:
+		return nil, fmt.Errorf("invalid format: %s (valid formats: yaml, json, xml)", format)
+	}
+}
 
 var exportCmd = &cobra.Command{
 	Use:   "export",
@@ -28,6 +43,13 @@ var exportCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// Get format option
+		formatOpt, err := GetFormatOption(exportFormat)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
+			os.Exit(1)
+		}
+
 		z := zabbix.New(conf.ZabbixUser, conf.ZabbixPassword, conf.ZabbixEndpoint)
 		err = z.Login(ctx)
 		if err != nil {
@@ -44,7 +66,7 @@ var exportCmd = &cobra.Command{
 		templatesID := res.GetTemplateID()
 		for _, tmplID := range templatesID {
 			// fmt.Println(template.TemplateID, template.Name)
-			res, err := z.Export(ctx, zabbix.ExportRequestOptionYAMLFormat(), zabbix.ExportRequestOptionTemplatesID([]string{tmplID}))
+			res, err := z.Export(ctx, formatOpt, zabbix.ExportRequestOptionTemplatesID([]string{tmplID}))
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 				os.Exit(1)
