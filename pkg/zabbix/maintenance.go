@@ -60,6 +60,17 @@ const (
 	MaintenanceNoDataCollection MaintenanceType = 1
 )
 
+// TagsEvalType represents how tags are evaluated.
+type TagsEvalType int
+
+// Tags evaluation types
+const (
+	// TagsEvalTypeAnd - AND evaluation (all tags must match)
+	TagsEvalTypeAnd TagsEvalType = 0
+	// TagsEvalTypeOr - OR evaluation (at least one tag must match)
+	TagsEvalTypeOr TagsEvalType = 1
+)
+
 // UnmarshalJSON is a custom unmarshaler for MaintenanceType to handle both string and int values
 func (mt *MaintenanceType) UnmarshalJSON(data []byte) error {
 	// Try to unmarshal as integer first
@@ -93,11 +104,15 @@ const (
 	// TimePeriodTypeOneTime - one time only
 	TimePeriodTypeOneTime TimePeriodType = 0
 	// TimePeriodTypeDaily - daily
-	TimePeriodTypeDaily TimePeriodType = 2
+	TimePeriodTypeDaily TimePeriodType = 1
 	// TimePeriodTypeWeekly - weekly
-	TimePeriodTypeWeekly TimePeriodType = 3
-	// TimePeriodTypeMonthly - monthly
-	TimePeriodTypeMonthly TimePeriodType = 4
+	TimePeriodTypeWeekly TimePeriodType = 2
+	// TimePeriodTypeMonthly - monthly (by day of month)
+	TimePeriodTypeMonthly TimePeriodType = 3
+	// TimePeriodTypeMonthlyByWeekday - monthly (by day of week)
+	TimePeriodTypeMonthlyByWeekday TimePeriodType = 4
+	// TimePeriodTypeYearly - yearly
+	TimePeriodTypeYearly TimePeriodType = 5
 )
 
 // UnmarshalJSON is a custom unmarshaler for TimePeriodType to handle both string and int values
@@ -151,23 +166,31 @@ type Maintenance struct {
 	HostIDs []string `json:"hostids,omitempty"`
 	// Tags to filter problems during maintenance
 	Tags []ProblemTag `json:"tags,omitempty"`
+	// Type of tag evaluation (0=AND, 1=OR)
+	TagsEvalType int `json:"tags_evaltype,omitempty"`
 }
 
 // TimePeriod represents a time period for maintenance.
 type TimePeriod struct {
 	// Time period ID (readonly)
 	TimePeriodID string `json:"timeperiodid,omitempty"`
-	// Time period type
+	// Time period type (0=one time, 1=daily, 2=weekly, 3=monthly by day, 4=monthly by weekday, 5=yearly)
 	TimePeriodType TimePeriodType `json:"timeperiod_type"`
-	// For daily and weekly periods, every day/week the maintenance will be performed starting at start_time
+	// Start date for one-time maintenance (Unix timestamp) - required for type 0
+	StartDate int `json:"start_date,omitempty"`
+	// For recurring periods, frequency (e.g., every N days/weeks) - required for type 4
 	Every int `json:"every,omitempty"`
-	// Day of the month when the maintenance must come into effect (1-31)
+	// Day of the month (1-31) - required for type 3 and 5
 	Day int `json:"day,omitempty"`
-	// Days of the week when the maintenance must come into effect (1-7, where 1 is Monday)
-	DayOfWeek []int `json:"dayofweek,omitempty"`
-	// Start time of the maintenance period in seconds since the start of the day
+	// Day of the week (0=Sunday, 1=Monday, ..., 6=Saturday) - required for type 2 and 4
+	DayOfWeek int `json:"dayofweek,omitempty"`
+	// Month of the year (1-12) - required for type 5
+	Month int `json:"month,omitempty"`
+	// Year (optional, for type 5)
+	Year int `json:"year,omitempty"`
+	// Start time in seconds from midnight - required for types 1,2,3,4,5
 	StartTime int `json:"start_time,omitempty"`
-	// Duration of the maintenance period in seconds
+	// Duration of the maintenance period in seconds - required for all types
 	Period int `json:"period,omitempty"`
 }
 
@@ -190,12 +213,14 @@ type MaintenanceResponse struct {
 type MaintenanceGetParams struct {
 	CommonGetParams
 
-	GroupIDs          []string `json:"groupids,omitempty"`
-	HostIDs           []string `json:"hostids,omitempty"`
-	MaintenanceIDs    []string `json:"maintenanceids,omitempty"`
-	SelectGroups      string   `json:"selectGroups,omitempty"`
-	SelectHosts       string   `json:"selectHosts,omitempty"`
-	SelectTimePeriods string   `json:"selectTimeperiods,omitempty"`
+	GroupIDs          []string    `json:"groupids,omitempty"`
+	HostIDs           []string    `json:"hostids,omitempty"`
+	MaintenanceIDs    []string    `json:"maintenanceids,omitempty"`
+	SelectGroups      interface{} `json:"selectGroups,omitempty"`      // "extend" or array of fields
+	SelectHosts       interface{} `json:"selectHosts,omitempty"`       // "extend" or array of fields
+	SelectTags        interface{} `json:"selectTags,omitempty"`        // "extend" or array of fields
+	SelectTimePeriods interface{} `json:"selectTimeperiods,omitempty"` // "extend" or array of fields
+	LimitSelects      int         `json:"limitSelects,omitempty"`      // Limits the number of records returned by subselects
 }
 
 // MaintenanceCreateRequest represents a request to create a maintenance.

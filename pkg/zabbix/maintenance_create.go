@@ -81,6 +81,14 @@ func WithMaintenanceTags(tags []ProblemTag) MaintenanceCreateOption {
 	}
 }
 
+// WithMaintenanceTagsEvalType sets the tag evaluation type for the maintenance.
+// Valid values: 0 (AND - all tags must match), 1 (OR - at least one tag must match).
+func WithMaintenanceTagsEvalType(tagsEvalType int) MaintenanceCreateOption {
+	return func(mcr *MaintenanceCreateRequest) {
+		mcr.Params.TagsEvalType = tagsEvalType
+	}
+}
+
 // WithMaintenanceAuthToken sets the authentication token for the API request.
 func WithMaintenanceAuthToken(token string) MaintenanceCreateOption {
 	return func(mcr *MaintenanceCreateRequest) {
