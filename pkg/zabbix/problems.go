@@ -258,14 +258,14 @@ type ProblemResponseTag struct {
 // old_severity - (integer) event severity before this update action;
 // new_severity - (integer) event severity after this update action;
 type AcknowledgeEntry struct {
-	AcknowledgeID string `json:"acknowledgeid"`
-	UserID        string `json:"userid"`
-	EventID       string `json:"eventid"`
-	Clock         string `json:"clock"`        // timestamp
-	Message       string `json:"message"`
-	Action        int    `json:"action"`       // integer
-	OldSeverity   int    `json:"old_severity"` // integer
-	NewSeverity   int    `json:"new_severity"` // integer
+	AcknowledgeID string      `json:"acknowledgeid"`
+	UserID        string      `json:"userid"`
+	EventID       string      `json:"eventid"`
+	Clock         StringInt64 `json:"clock"`        // Unix timestamp
+	Message       string      `json:"message"`
+	Action        int         `json:"action"`       // integer
+	OldSeverity   int         `json:"old_severity"` // integer
+	NewSeverity   int         `json:"new_severity"` // integer
 }
 
 // SuppressionDataEntry represents data about problem suppression.
@@ -299,32 +299,32 @@ type ProblemURL struct {
 // Most fields are Readonly.
 type Problem struct {
 	// Core problem fields
-	EventID      string `json:"eventid"`                 // Readonly: ID of the problem event.
-	Source       string `json:"source"`                  // Readonly: Type of object that created the problem event (e.g., "0" for trigger).
-	Object       string `json:"object"`                  // Readonly: Type of object related to the problem event (e.g., "0" for trigger).
-	ObjectID     string `json:"objectid"`                // Readonly: ID of the related object.
-	Clock        string `json:"clock"`                   // Readonly: Time when the problem event was created (timestamp).
-	Ns           string `json:"ns"`                      // Readonly: Nanoseconds when the problem event was created.
-	Name         string `json:"name"`                    // Readonly: Problem name.
-	Acknowledged string `json:"acknowledged"`            // Readonly: Whether the problem event is acknowledged ("0" or "1").
-	Severity     string `json:"severity"`                // Readonly: Current severity of the problem (e.g., "0"-"5").
-	UserID       string `json:"userid,omitempty"`        // Readonly: ID of the user who generated the event (internal events only).
+	EventID      string      `json:"eventid"`                 // Readonly: ID of the problem event.
+	Source       string      `json:"source"`                  // Readonly: Type of object that created the problem event (e.g., "0" for trigger).
+	Object       string      `json:"object"`                  // Readonly: Type of object related to the problem event (e.g., "0" for trigger).
+	ObjectID     string      `json:"objectid"`                // Readonly: ID of the related object.
+	Clock        StringInt64 `json:"clock"`                   // Readonly: Unix timestamp when the problem event was created.
+	Ns           StringInt64 `json:"ns"`                      // Readonly: Nanoseconds when the problem event was created.
+	Name         string      `json:"name"`                    // Readonly: Problem name.
+	Acknowledged string      `json:"acknowledged"`            // Readonly: Whether the problem event is acknowledged ("0" or "1").
+	Severity     string      `json:"severity"`                // Readonly: Current severity of the problem (e.g., "0"-"5").
+	UserID       string      `json:"userid,omitempty"`        // Readonly: ID of the user who generated the event (internal events only).
 
 	// Recovery information
-	Rclock   string `json:"r_clock,omitempty"`   // Readonly: Time when the problem was resolved (timestamp).
-	ReventID string `json:"r_eventid,omitempty"` // Readonly: ID of the recovery event.
-	Rns      string `json:"r_ns,omitempty"`      // Readonly: Nanoseconds when the problem was resolved.
+	Rclock   StringInt64 `json:"r_clock,omitempty"`   // Readonly: Unix timestamp when the problem was resolved.
+	ReventID string      `json:"r_eventid,omitempty"` // Readonly: ID of the recovery event.
+	Rns      StringInt64 `json:"r_ns,omitempty"`      // Readonly: Nanoseconds when the problem was resolved.
 
 	// Correlation information
-	CorrelationID   string `json:"correlationid,omitempty"`   // Readonly: ID of the correlation rule that correlated the problem.
+	CorrelationID   string `json:"correlationid,omitempty"`    // Readonly: ID of the correlation rule that correlated the problem.
 	CorrelationMode int    `json:"correlation_mode,omitempty"` // Readonly: How the problem was correlated.
 	CorrelationTag  string `json:"correlation_tag,omitempty"`  // Readonly: Tag used for correlation.
 	CauseEventID    string `json:"cause_eventid,omitempty"`    // Readonly: ID of the problem event that caused this problem.
 
 	// Operational and suppression data
-	Opdata        string `json:"opdata,omitempty"`           // Readonly: Operational data of the problem.
-	Suppressed    string `json:"suppressed"`                 // Readonly: Whether the problem event is suppressed ("0" or "1").
-	SuppressUntil string `json:"suppress_until,omitempty"`   // Readonly: Timestamp until when the problem event is suppressed (problem's own suppression time).
+	Opdata        string      `json:"opdata,omitempty"`         // Readonly: Operational data of the problem.
+	Suppressed    string      `json:"suppressed"`               // Readonly: Whether the problem event is suppressed ("0" or "1").
+	SuppressUntil StringInt64 `json:"suppress_until,omitempty"` // Readonly: Unix timestamp until when the problem event is suppressed.
 
 	// URLs from media types
 	URLs []ProblemURL `json:"urls,omitempty"` // Readonly: URLs from active media types with event menu entry enabled.
@@ -339,28 +339,18 @@ type Problem struct {
 // GetClock returns the clock as a time.Time.
 // If the clock cannot be converted, it returns time.Time{}.
 func (p *Problem) GetClock() time.Time {
-	// convert clock to int64 and then to time.Time
-	num, err := strconv.ParseInt(p.Clock, 10, 64)
-	if err != nil {
-		return time.Time{}
-	}
-	ts := time.Unix(num, 0)
-	return ts
+	// Convert int64 timestamp to time.Time
+	return time.Unix(p.Clock.Int64(), 0)
 }
 
 // GetRClock returns the rclock as a time.Time.
-// If the rclock cannot be converted or has no value, it returns time.Time{}.
+// If the rclock has no value, it returns time.Time{}.
 func (p *Problem) GetRClock() time.Time {
-	if p.Rclock == "" {
+	if p.Rclock.Int64() == 0 {
 		return time.Time{}
 	}
-	// convert clock to int64 and then to time.Time
-	num, err := strconv.ParseInt(p.Rclock, 10, 64)
-	if err != nil {
-		return time.Time{}
-	}
-	ts := time.Unix(num, 0)
-	return ts
+	// Convert int64 timestamp to time.Time
+	return time.Unix(p.Rclock.Int64(), 0)
 }
 
 // GetDuration returns the duration of the problem.

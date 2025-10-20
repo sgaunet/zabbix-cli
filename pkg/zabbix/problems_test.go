@@ -2,7 +2,6 @@ package zabbix_test
 
 import (
 	"reflect"
-	"strconv"
 	"testing"
 	"time"
 
@@ -203,24 +202,25 @@ func TestGetProblemOptionSearchWildcardsEnabled(t *testing.T) {
 
 // --- Problem struct methods ---
 func TestProblem_GetClock(t *testing.T) {
-	p := &zabbix.Problem{Clock: strconv.FormatInt(time.Now().Unix(), 10)}
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(time.Now().Unix())}
 	tm := p.GetClock()
 	if tm.IsZero() {
 		t.Errorf("expected valid time, got zero")
 	}
 }
 
-func TestProblem_GetClock_Invalid(t *testing.T) {
-	p := &zabbix.Problem{Clock: "invalid"}
+func TestProblem_GetClock_Zero(t *testing.T) {
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(0)}
 	tm := p.GetClock()
-	if !tm.IsZero() {
-		t.Errorf("expected zero time for invalid clock")
+	// 0 is Unix epoch (Jan 1, 1970), not invalid
+	if tm.Unix() != 0 {
+		t.Errorf("expected Unix epoch for clock=0, got %v", tm)
 	}
 }
 
 func TestProblem_GetRClock(t *testing.T) {
 	now := time.Now().Unix()
-	p := &zabbix.Problem{Rclock: strconv.FormatInt(now, 10)}
+	p := &zabbix.Problem{Rclock: zabbix.StringInt64(now)}
 	tm := p.GetRClock()
 	if tm.IsZero() {
 		t.Errorf("expected valid time, got zero")
@@ -228,7 +228,7 @@ func TestProblem_GetRClock(t *testing.T) {
 }
 
 func TestProblem_GetRClock_Empty(t *testing.T) {
-	p := &zabbix.Problem{Rclock: ""}
+	p := &zabbix.Problem{Rclock: zabbix.StringInt64(0)}
 	tm := p.GetRClock()
 	if !tm.IsZero() {
 		t.Errorf("expected zero time for empty rclock")
@@ -237,7 +237,7 @@ func TestProblem_GetRClock_Empty(t *testing.T) {
 
 func TestProblem_GetDuration(t *testing.T) {
 	now := time.Now().Unix()
-	p := &zabbix.Problem{Clock: strconv.FormatInt(now-10, 10), Rclock: strconv.FormatInt(now, 10)}
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(now - 10), Rclock: zabbix.StringInt64(now)}
 	dur := p.GetDuration()
 	if dur < 10*time.Second {
 		t.Errorf("expected duration >= 10s, got %v", dur)
@@ -246,7 +246,7 @@ func TestProblem_GetDuration(t *testing.T) {
 
 func TestProblem_GetDurationStr(t *testing.T) {
 	now := time.Now().Unix()
-	p := &zabbix.Problem{Clock: strconv.FormatInt(now-3661, 10), Rclock: strconv.FormatInt(now, 10)}
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(now - 3661), Rclock: zabbix.StringInt64(now)}
 	str := p.GetDurationStr()
 	if str == "" {
 		t.Errorf("expected duration string, got empty")

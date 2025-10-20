@@ -177,7 +177,7 @@ type TimePeriod struct {
 	// Time period type (0=one time, 1=daily, 2=weekly, 3=monthly by day, 4=monthly by weekday, 5=yearly)
 	TimePeriodType TimePeriodType `json:"timeperiod_type"`
 	// Start date for one-time maintenance (Unix timestamp) - required for type 0
-	StartDate int `json:"start_date,omitempty"`
+	StartDate int64 `json:"start_date,omitempty"`
 	// For recurring periods, frequency (e.g., every N days/weeks) - required for type 4
 	Every int `json:"every,omitempty"`
 	// Day of the month (1-31) - required for type 3 and 5
