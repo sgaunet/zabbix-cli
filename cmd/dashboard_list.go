@@ -58,10 +58,14 @@ var DashboardListCmd = &cobra.Command{
 			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 			fmt.Fprintln(w, "ID\tNAME\tPRIVATE\tDISPLAY_PERIOD")
 			for _, dashboard := range response.Result {
+				privateStr := "No"
+				if dashboard.Private.Bool() {
+					privateStr = "Yes"
+				}
 				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 					dashboard.DashboardID,
 					dashboard.Name,
-					dashboard.Private,
+					privateStr,
 					dashboard.DisplayPeriod)
 			}
 			w.Flush()
