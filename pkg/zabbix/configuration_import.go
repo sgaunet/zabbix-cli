@@ -11,13 +11,13 @@ import (
 
 const methodConfigurationImport = "configuration.import"
 
-// configurationImportRequest is the request body for configuration.import.
+// ConfigurationImportRequest is the request body for configuration.import.
 // it's the same as configuration.importcompare.
-type configurationImportRequest configurationImportCompareRequest
+type ConfigurationImportRequest configurationImportCompareRequest
 
 // NewConfigurationImportRequest creates a new configuration import request with default rules.
-func NewConfigurationImportRequest(source string) *configurationImportRequest {
-	return &configurationImportRequest{
+func NewConfigurationImportRequest(source string) *ConfigurationImportRequest {
+	return &ConfigurationImportRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodConfigurationImport,
 		Params: paramsImport{

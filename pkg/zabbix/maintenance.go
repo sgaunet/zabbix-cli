@@ -2,8 +2,14 @@ package zabbix
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
+)
+
+// BoolString validation errors
+var (
+	ErrInvalidBoolString = errors.New("invalid BoolString value: expected '0', '1', true, or false")
 )
 
 // Maintenance API method names
@@ -50,6 +56,10 @@ func (si *StringInt64) Int64() int64 {
 }
 
 // BoolString is a custom type that can unmarshal boolean JSON values that come as "0"/"1" strings or actual booleans
+// Note: UnmarshalJSON uses pointer receiver (must modify value) while MarshalJSON uses value receiver
+// (must work with both pointers and values). This is the correct pattern for JSON marshaling.
+//
+//nolint:recvcheck // Mixed receivers are correct for JSON marshaler/unmarshaler pattern
 type BoolString bool
 
 // UnmarshalJSON is a custom unmarshaler for BoolString to handle both string and boolean values
@@ -74,7 +84,7 @@ func (bs *BoolString) UnmarshalJSON(data []byte) error {
 	case "0":
 		*bs = BoolString(false)
 	default:
-		return fmt.Errorf("invalid BoolString value '%s': expected '0', '1', true, or false", stringValue)
+		return fmt.Errorf("%w: '%s'", ErrInvalidBoolString, stringValue)
 	}
 
 	return nil

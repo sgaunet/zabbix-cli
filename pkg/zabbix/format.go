@@ -3,11 +3,20 @@ package zabbix
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v3"
+)
+
+// Format validation errors
+var (
+	ErrEmptyData              = errors.New("empty data")
+	ErrUnsupportedFormat      = errors.New("unsupported format")
+	ErrEmptyExportData        = errors.New("empty export data")
+	ErrNotZabbixExportData    = errors.New("data does not appear to be Zabbix export data (missing 'zabbix_export' marker)")
 )
 
 // FormatType represents the configuration data format
@@ -74,7 +83,7 @@ func DetectFormatFromContent(data string) FormatType {
 // ValidateFormat validates that the given data is valid for the specified format
 func ValidateFormat(data string, format FormatType) error {
 	if data == "" {
-		return fmt.Errorf("empty data")
+		return ErrEmptyData
 	}
 
 	switch format {
@@ -84,8 +93,10 @@ func ValidateFormat(data string, format FormatType) error {
 		return ValidateJSON(data)
 	case FormatXML:
 		return ValidateXML(data)
+	case FormatUnknown:
+		return fmt.Errorf("%w: %s", ErrUnsupportedFormat, format)
 	default:
-		return fmt.Errorf("unsupported format: %s", format)
+		return fmt.Errorf("%w: %s", ErrUnsupportedFormat, format)
 	}
 }
 
@@ -119,12 +130,12 @@ func ValidateXML(data string) error {
 // ValidateZabbixExportData validates that data looks like valid Zabbix export data
 func ValidateZabbixExportData(data string) error {
 	if data == "" {
-		return fmt.Errorf("empty export data")
+		return ErrEmptyExportData
 	}
 
 	// Check for zabbix_export marker (common to all formats)
 	if !strings.Contains(data, "zabbix_export") {
-		return fmt.Errorf("data does not appear to be Zabbix export data (missing 'zabbix_export' marker)")
+		return ErrNotZabbixExportData
 	}
 
 	return nil
