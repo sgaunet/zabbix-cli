@@ -3,7 +3,7 @@ module github.com/sgaunet/zabbix-cli
 go 1.23.2
 
 require (
-	github.com/pterm/pterm v0.12.81
+	github.com/pterm/pterm v0.12.82
 	github.com/spf13/cobra v1.10.1
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
