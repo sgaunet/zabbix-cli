@@ -24,10 +24,10 @@ type EventsAcknowledgeParams struct {
 
 	// This is a bitmask field; any sum of possible bitmap values is acceptable (for example, 6 for acknowledge event and add message).
 	Action  int    `json:"action"`
-	Message string `json:"message"`
+	Message string `json:"message,omitempty"` // Required only if action contains 'add message' flag (4).
 
 	// 	New severity for events.
-	Severity Severity `json:"severity"` // Required, if action contains 'change severity' flag.
+	Severity Severity `json:"severity,omitempty"` // Required only if action contains 'change severity' flag (8).
 }
 
 // EventAcknowledgeRequest represents a request to acknowledge Zabbix events.
@@ -88,8 +88,8 @@ type EventAcknowledgeResponse struct {
 	Result  struct {
 		Eventids []int `json:"eventids"`
 	} `json:"result"`
-	ID       int      `json:"id"`
-	ErrorMsg ErrorMsg `json:"error,omitempty"`
+	ID    int    `json:"id"`
+	Error *Error `json:"error,omitempty"`
 }
 
 // AcknowledgeEvents acknowledges events with the specified options.
@@ -109,8 +109,8 @@ func (z *Client) AcknowledgeEvents(ctx context.Context, eventsID []string, opts 
 	if err := json.Unmarshal(body, &res); err != nil {
 		return nil, fmt.Errorf("cannot unmarshal response: %w", err)
 	}
-	if res.ErrorMsg != (ErrorMsg{}) {
-		return nil, fmt.Errorf("error message: %w", &res.ErrorMsg)
+	if res.Error != nil && res.Error.Code != 0 {
+		return nil, res.Error
 	}
 	return res.Result.Eventids, nil
 }

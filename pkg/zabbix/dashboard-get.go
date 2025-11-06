@@ -1,15 +1,15 @@
 package zabbix
 
 // DashboardGetParams defines the parameters for the Zabbix dashboard.get API call.
-// See: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/dashboard/get
+// See: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/dashboard/get
 type DashboardGetParams struct {
 	CommonGetParams // Embeds common parameters like Output, Limit, Filter, etc.
 
 	DashboardIDs []string `json:"dashboardids,omitempty"` // Return only dashboards with the given IDs.
 
-	SelectPages      interface{} `json:"selectPages,omitempty"`      // Return dashboard pages. "extend" or array of fields
-	SelectUsers      interface{} `json:"selectUsers,omitempty"`      // Return users the dashboard is shared with. "extend" or array of fields
-	SelectUserGroups interface{} `json:"selectUserGroups,omitempty"` // Return user groups the dashboard is shared with. "extend" or array of fields
+	SelectPages      any `json:"selectPages,omitempty"`      // Return dashboard pages. "extend" or array of fields
+	SelectUsers      any `json:"selectUsers,omitempty"`      // Return users the dashboard is shared with. "extend" or array of fields
+	SelectUserGroups any `json:"selectUserGroups,omitempty"` // Return user groups the dashboard is shared with. "extend" or array of fields
 }
 
 // DashboardGetRequest defines the JSON-RPC request structure for dashboard.get.
@@ -53,24 +53,24 @@ func WithDashboardGetDashboardIDs(ids []string) DashboardGetOption {
 }
 
 // WithDashboardGetSelectPages sets the selectPages parameter.
-func WithDashboardGetSelectPages(query interface{}) DashboardGetOption {
+func WithDashboardGetSelectPages(query any) DashboardGetOption {
 	return func(dgr *DashboardGetRequest) { dgr.Params.SelectPages = query }
 }
 
 // WithDashboardGetSelectUsers sets the selectUsers parameter.
-func WithDashboardGetSelectUsers(query interface{}) DashboardGetOption {
+func WithDashboardGetSelectUsers(query any) DashboardGetOption {
 	return func(dgr *DashboardGetRequest) { dgr.Params.SelectUsers = query }
 }
 
 // WithDashboardGetSelectUserGroups sets the selectUserGroups parameter.
-func WithDashboardGetSelectUserGroups(query interface{}) DashboardGetOption {
+func WithDashboardGetSelectUserGroups(query any) DashboardGetOption {
 	return func(dgr *DashboardGetRequest) { dgr.Params.SelectUserGroups = query }
 }
 
 // --- Option functions for CommonGetParams (embedded) ---
 
 // WithDashboardGetOutput sets the output parameter.
-func WithDashboardGetOutput(output interface{}) DashboardGetOption {
+func WithDashboardGetOutput(output any) DashboardGetOption {
 	return func(dgr *DashboardGetRequest) { dgr.Params.Output = output }
 }
 
@@ -80,7 +80,7 @@ func WithDashboardGetLimit(limit int) DashboardGetOption {
 }
 
 // WithDashboardGetFilter sets the filter parameter.
-func WithDashboardGetFilter(filter map[string]interface{}) DashboardGetOption {
+func WithDashboardGetFilter(filter map[string]any) DashboardGetOption {
 	return func(dgr *DashboardGetRequest) { dgr.Params.Filter = filter }
 }
 
@@ -95,7 +95,7 @@ func WithDashboardGetSortOrder(sortOrder []string) DashboardGetOption {
 }
 
 // WithDashboardGetSearch sets the search parameter.
-func WithDashboardGetSearch(search map[string]interface{}) DashboardGetOption {
+func WithDashboardGetSearch(search map[string]any) DashboardGetOption {
 	return func(dgr *DashboardGetRequest) { dgr.Params.Search = search }
 }
 

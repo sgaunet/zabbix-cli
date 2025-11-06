@@ -7,16 +7,17 @@ import (
 	"net/http"
 )
 
-// Documentation of zabbix api: https://www.zabbix.com/documentation/6.0/en/manual/api/reference/configuration/import
+// Documentation of zabbix api: https://www.zabbix.com/documentation/7.2/en/manual/api/reference/configuration/import
 
 const methodConfigurationImport = "configuration.import"
 
-// configurationImportRequest is the request body for configuration.import.
+// ConfigurationImportRequest is the request body for configuration.import.
 // it's the same as configuration.importcompare.
-type configurationImportRequest configurationImportCompareRequest
+type ConfigurationImportRequest configurationImportCompareRequest
 
-func newConfigurationImportRequest(source string) *configurationImportRequest {
-	return &configurationImportRequest{
+// NewConfigurationImportRequest creates a new configuration import request with default rules.
+func NewConfigurationImportRequest(source string) *ConfigurationImportRequest {
+	return &ConfigurationImportRequest{
 		JSONRPC: JSONRPC,
 		Method:  methodConfigurationImport,
 		Params: paramsImport{
@@ -30,15 +31,15 @@ func newConfigurationImportRequest(source string) *configurationImportRequest {
 }
 
 type configurationImportResponse struct {
-	JSONRPC  string   `json:"jsonrpc"`
-	Result   bool     `json:"result"`
-	ErrorMsg ErrorMsg `json:"error,omitempty"`
-	ID       int      `json:"id"`
+	JSONRPC string `json:"jsonrpc"`
+	Result  bool   `json:"result"`
+	Error   *Error `json:"error,omitempty"`
+	ID      int    `json:"id"`
 }
 
 // Import imports configuration from the given source string.
 func (z *Client) Import(ctx context.Context, source string) (bool, error) {
-	c := newConfigurationImportRequest(source)
+	c := NewConfigurationImportRequest(source)
 	// initialize auth token
 	c.Auth = z.Auth()
 
@@ -56,8 +57,8 @@ func (z *Client) Import(ctx context.Context, source string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("cannot unmarshal response: %w - %s", err, string(body))
 	}
-	if res.ErrorMsg != (ErrorMsg{}) {
-		return false, fmt.Errorf("error message: %w", &res.ErrorMsg)
+	if res.Error != nil && res.Error.Code != 0 {
+		return false, res.Error
 	}
 	return res.Result, nil
 }

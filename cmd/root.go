@@ -19,10 +19,14 @@ var templateName string
 // templateFile is a flag to specify the template file (import)
 var templateFile string
 
+// exportFormat is a flag to specify the export format (yaml, json, xml)
+var exportFormat string
+
 // dashboard-related flags
 var dashboardName string
 var dashboardID string
 var dashboardFile string
+var dashboardExportFormat string
 
 var ErrInvalidConfig = errors.New("invalid configuration")
 
@@ -55,6 +59,7 @@ func init() {
 
 	// export subcommand
 	exportCmd.Flags().StringVarP(&templateName, "template", "t", "", "template name to export")
+	exportCmd.Flags().StringVar(&exportFormat, "format", "yaml", "export format: yaml, json, or xml")
 	// import subcommand
 	importCmd.Flags().StringVarP(&templateFile, "file", "f", "", "template file to import")
 	importCmd.MarkFlagRequired("f") //nolint: errcheck
@@ -89,6 +94,7 @@ func init() {
 	DashboardExportCmd.Flags().StringVarP(&dashboardName, "name", "n", "", "Dashboard name to export")
 	DashboardExportCmd.Flags().StringVar(&dashboardID, "id", "", "Dashboard ID to export")
 	DashboardExportCmd.Flags().StringVarP(&dashboardFile, "file", "f", "", "Output file path (default: stdout)")
+	DashboardExportCmd.Flags().StringVar(&dashboardExportFormat, "format", "yaml", "export format: yaml, json, or xml")
 }
 
 // initConfig reads in config file and ENV variables if set.

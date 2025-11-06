@@ -43,8 +43,31 @@ var importCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// serializedTemplate := strings.ReplaceAll(string(template), "\n", "\n")
-		isImported, err := z.Import(ctx, string(template))
+		templateData := string(template)
+
+		// Detect format from file extension
+		detectedFormat := zabbix.DetectFormatFromExtension(templateFile)
+		if detectedFormat == zabbix.FormatUnknown {
+			// Try to detect from content
+			detectedFormat = zabbix.DetectFormatFromContent(templateData)
+		}
+
+		// Validate format
+		if detectedFormat != zabbix.FormatUnknown {
+			if err := zabbix.ValidateFormat(templateData, detectedFormat); err != nil {
+				fmt.Fprintf(os.Stderr, "Format validation failed: %v\n", err.Error())
+				os.Exit(1)
+			}
+		}
+
+		// Validate it's Zabbix export data
+		if err := zabbix.ValidateZabbixExportData(templateData); err != nil {
+			fmt.Fprintf(os.Stderr, "Invalid Zabbix export data: %v\n", err.Error())
+			os.Exit(1)
+		}
+
+		// Import the template
+		isImported, err := z.Import(ctx, templateData)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 			os.Exit(1)

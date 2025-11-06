@@ -2,7 +2,6 @@ package zabbix_test
 
 import (
 	"reflect"
-	"strconv"
 	"testing"
 	"time"
 
@@ -98,7 +97,7 @@ func TestGetProblemOptionEvalType(t *testing.T) {
 
 func TestGetProblemOptionTags(t *testing.T) {
 	req := &zabbix.GetProblemRequest{Params: zabbix.ProblemParams{}}
-	tags := []zabbix.FilterProblemTags{{Tag: "t", Value: "v", Operator: "1"}}
+	tags := []zabbix.FilterProblemTags{{Tag: "t", Value: "v", Operator: 1}}
 	zabbix.GetProblemOptionTags(tags)(req)
 	if !reflect.DeepEqual(req.Params.Tags, tags) {
 		t.Errorf("expected Tags %v, got %v", tags, req.Params.Tags)
@@ -203,24 +202,25 @@ func TestGetProblemOptionSearchWildcardsEnabled(t *testing.T) {
 
 // --- Problem struct methods ---
 func TestProblem_GetClock(t *testing.T) {
-	p := &zabbix.Problem{Clock: strconv.FormatInt(time.Now().Unix(), 10)}
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(time.Now().Unix())}
 	tm := p.GetClock()
 	if tm.IsZero() {
 		t.Errorf("expected valid time, got zero")
 	}
 }
 
-func TestProblem_GetClock_Invalid(t *testing.T) {
-	p := &zabbix.Problem{Clock: "invalid"}
+func TestProblem_GetClock_Zero(t *testing.T) {
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(0)}
 	tm := p.GetClock()
-	if !tm.IsZero() {
-		t.Errorf("expected zero time for invalid clock")
+	// 0 is Unix epoch (Jan 1, 1970), not invalid
+	if tm.Unix() != 0 {
+		t.Errorf("expected Unix epoch for clock=0, got %v", tm)
 	}
 }
 
 func TestProblem_GetRClock(t *testing.T) {
 	now := time.Now().Unix()
-	p := &zabbix.Problem{Rclock: strconv.FormatInt(now, 10)}
+	p := &zabbix.Problem{Rclock: zabbix.StringInt64(now)}
 	tm := p.GetRClock()
 	if tm.IsZero() {
 		t.Errorf("expected valid time, got zero")
@@ -228,7 +228,7 @@ func TestProblem_GetRClock(t *testing.T) {
 }
 
 func TestProblem_GetRClock_Empty(t *testing.T) {
-	p := &zabbix.Problem{Rclock: ""}
+	p := &zabbix.Problem{Rclock: zabbix.StringInt64(0)}
 	tm := p.GetRClock()
 	if !tm.IsZero() {
 		t.Errorf("expected zero time for empty rclock")
@@ -237,7 +237,7 @@ func TestProblem_GetRClock_Empty(t *testing.T) {
 
 func TestProblem_GetDuration(t *testing.T) {
 	now := time.Now().Unix()
-	p := &zabbix.Problem{Clock: strconv.FormatInt(now-10, 10), Rclock: strconv.FormatInt(now, 10)}
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(now - 10), Rclock: zabbix.StringInt64(now)}
 	dur := p.GetDuration()
 	if dur < 10*time.Second {
 		t.Errorf("expected duration >= 10s, got %v", dur)
@@ -246,7 +246,7 @@ func TestProblem_GetDuration(t *testing.T) {
 
 func TestProblem_GetDurationStr(t *testing.T) {
 	now := time.Now().Unix()
-	p := &zabbix.Problem{Clock: strconv.FormatInt(now-3661, 10), Rclock: strconv.FormatInt(now, 10)}
+	p := &zabbix.Problem{Clock: zabbix.StringInt64(now - 3661), Rclock: zabbix.StringInt64(now)}
 	str := p.GetDurationStr()
 	if str == "" {
 		t.Errorf("expected duration string, got empty")
@@ -254,44 +254,44 @@ func TestProblem_GetDurationStr(t *testing.T) {
 }
 
 func TestProblem_GetAcknowledge(t *testing.T) {
-	p := &zabbix.Problem{Acknowledged: "1"}
+	p := &zabbix.Problem{Acknowledged: zabbix.BoolString(true)}
 	if !p.GetAcknowledge() {
 		t.Errorf("expected acknowledged true")
 	}
-	p.Acknowledged = "0"
+	p.Acknowledged = zabbix.BoolString(false)
 	if p.GetAcknowledge() {
 		t.Errorf("expected acknowledged false")
 	}
 }
 
 func TestProblem_GetSuppressed(t *testing.T) {
-	p := &zabbix.Problem{Suppressed: "1"}
+	p := &zabbix.Problem{Suppressed: zabbix.BoolString(true)}
 	if !p.GetSuppressed() {
 		t.Errorf("expected suppressed true")
 	}
-	p.Suppressed = "0"
+	p.Suppressed = zabbix.BoolString(false)
 	if p.GetSuppressed() {
 		t.Errorf("expected suppressed false")
 	}
 }
 
 func TestProblem_GetAcknowledgeStr(t *testing.T) {
-	p := &zabbix.Problem{Acknowledged: "1"}
+	p := &zabbix.Problem{Acknowledged: zabbix.BoolString(true)}
 	if p.GetAcknowledgeStr() != "Yes" {
 		t.Errorf("expected Yes for acknowledged")
 	}
-	p.Acknowledged = "0"
+	p.Acknowledged = zabbix.BoolString(false)
 	if p.GetAcknowledgeStr() != "No" {
 		t.Errorf("expected No for not acknowledged")
 	}
 }
 
 func TestProblem_GetSuppressedStr(t *testing.T) {
-	p := &zabbix.Problem{Suppressed: "1"}
+	p := &zabbix.Problem{Suppressed: zabbix.BoolString(true)}
 	if p.GetSuppressedStr() != "Yes" {
 		t.Errorf("expected Yes for suppressed")
 	}
-	p.Suppressed = "0"
+	p.Suppressed = zabbix.BoolString(false)
 	if p.GetSuppressedStr() != "No" {
 		t.Errorf("expected No for not suppressed")
 	}

@@ -2,8 +2,21 @@ package zabbix
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
+)
+
+// BoolString validation errors
+var (
+	ErrInvalidBoolString = errors.New("invalid BoolString value: expected '0', '1', true, or false")
+)
+
+// Maintenance API method names
+const (
+	MethodMaintenanceCreate = "maintenance.create"
+	MethodMaintenanceGet    = "maintenance.get"
+	MethodMaintenanceDelete = "maintenance.delete"
 )
 
 // StringInt64 is a custom type that can unmarshal both string and integer JSON values into an int64
@@ -42,6 +55,54 @@ func (si *StringInt64) Int64() int64 {
 	return int64(*si)
 }
 
+// BoolString is a custom type that can unmarshal boolean JSON values that come as "0"/"1" strings or actual booleans
+// Note: UnmarshalJSON uses pointer receiver (must modify value) while MarshalJSON uses value receiver
+// (must work with both pointers and values). This is the correct pattern for JSON marshaling.
+//
+//nolint:recvcheck // Mixed receivers are correct for JSON marshaler/unmarshaler pattern
+type BoolString bool
+
+// UnmarshalJSON is a custom unmarshaler for BoolString to handle both string and boolean values
+func (bs *BoolString) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as boolean first
+	var boolValue bool
+	if err := json.Unmarshal(data, &boolValue); err == nil {
+		*bs = BoolString(boolValue)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as string
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err != nil {
+		return fmt.Errorf("failed to unmarshal BoolString from string: %w", err)
+	}
+
+	// Convert string to boolean: "1" = true, "0" = false
+	switch stringValue {
+	case "1":
+		*bs = BoolString(true)
+	case "0":
+		*bs = BoolString(false)
+	default:
+		return fmt.Errorf("%w: '%s'", ErrInvalidBoolString, stringValue)
+	}
+
+	return nil
+}
+
+// MarshalJSON is a custom marshaler for BoolString to output as "0"/"1" strings for API compatibility
+func (bs BoolString) MarshalJSON() ([]byte, error) {
+	if bs {
+		return []byte(`"1"`), nil
+	}
+	return []byte(`"0"`), nil
+}
+
+// Bool converts BoolString back to a standard bool value
+func (bs BoolString) Bool() bool {
+	return bool(bs)
+}
+
 // MaintenanceType represents the type of maintenance.
 type MaintenanceType int
 
@@ -51,6 +112,17 @@ const (
 	MaintenanceWithDataCollection MaintenanceType = 0
 	// MaintenanceNoDataCollection - maintenance without data collection
 	MaintenanceNoDataCollection MaintenanceType = 1
+)
+
+// TagsEvalType represents how tags are evaluated.
+type TagsEvalType int
+
+// Tags evaluation types
+const (
+	// TagsEvalTypeAnd - AND evaluation (all tags must match)
+	TagsEvalTypeAnd TagsEvalType = 0
+	// TagsEvalTypeOr - OR evaluation (at least one tag must match)
+	TagsEvalTypeOr TagsEvalType = 1
 )
 
 // UnmarshalJSON is a custom unmarshaler for MaintenanceType to handle both string and int values
@@ -86,11 +158,15 @@ const (
 	// TimePeriodTypeOneTime - one time only
 	TimePeriodTypeOneTime TimePeriodType = 0
 	// TimePeriodTypeDaily - daily
-	TimePeriodTypeDaily TimePeriodType = 2
+	TimePeriodTypeDaily TimePeriodType = 1
 	// TimePeriodTypeWeekly - weekly
-	TimePeriodTypeWeekly TimePeriodType = 3
-	// TimePeriodTypeMonthly - monthly
-	TimePeriodTypeMonthly TimePeriodType = 4
+	TimePeriodTypeWeekly TimePeriodType = 2
+	// TimePeriodTypeMonthly - monthly (by day of month)
+	TimePeriodTypeMonthly TimePeriodType = 3
+	// TimePeriodTypeMonthlyByWeekday - monthly (by day of week)
+	TimePeriodTypeMonthlyByWeekday TimePeriodType = 4
+	// TimePeriodTypeYearly - yearly
+	TimePeriodTypeYearly TimePeriodType = 5
 )
 
 // UnmarshalJSON is a custom unmarshaler for TimePeriodType to handle both string and int values
@@ -144,23 +220,31 @@ type Maintenance struct {
 	HostIDs []string `json:"hostids,omitempty"`
 	// Tags to filter problems during maintenance
 	Tags []ProblemTag `json:"tags,omitempty"`
+	// Type of tag evaluation (0=AND, 1=OR)
+	TagsEvalType int `json:"tags_evaltype,omitempty"`
 }
 
 // TimePeriod represents a time period for maintenance.
 type TimePeriod struct {
 	// Time period ID (readonly)
 	TimePeriodID string `json:"timeperiodid,omitempty"`
-	// Time period type
+	// Time period type (0=one time, 1=daily, 2=weekly, 3=monthly by day, 4=monthly by weekday, 5=yearly)
 	TimePeriodType TimePeriodType `json:"timeperiod_type"`
-	// For daily and weekly periods, every day/week the maintenance will be performed starting at start_time
+	// Start date for one-time maintenance (Unix timestamp) - required for type 0
+	StartDate int64 `json:"start_date,omitempty"`
+	// For recurring periods, frequency (e.g., every N days/weeks) - required for type 4
 	Every int `json:"every,omitempty"`
-	// Day of the month when the maintenance must come into effect (1-31)
+	// Day of the month (1-31) - required for type 3 and 5
 	Day int `json:"day,omitempty"`
-	// Days of the week when the maintenance must come into effect (1-7, where 1 is Monday)
-	DayOfWeek []int `json:"dayofweek,omitempty"`
-	// Start time of the maintenance period in seconds since the start of the day
+	// Day of the week (0=Sunday, 1=Monday, ..., 6=Saturday) - required for type 2 and 4
+	DayOfWeek int `json:"dayofweek,omitempty"`
+	// Month of the year (1-12) - required for type 5
+	Month int `json:"month,omitempty"`
+	// Year (optional, for type 5)
+	Year int `json:"year,omitempty"`
+	// Start time in seconds from midnight - required for types 1,2,3,4,5
 	StartTime int `json:"start_time,omitempty"`
-	// Duration of the maintenance period in seconds
+	// Duration of the maintenance period in seconds - required for all types
 	Period int `json:"period,omitempty"`
 }
 
@@ -186,9 +270,11 @@ type MaintenanceGetParams struct {
 	GroupIDs          []string `json:"groupids,omitempty"`
 	HostIDs           []string `json:"hostids,omitempty"`
 	MaintenanceIDs    []string `json:"maintenanceids,omitempty"`
-	SelectGroups      string   `json:"selectGroups,omitempty"`
-	SelectHosts       string   `json:"selectHosts,omitempty"`
-	SelectTimePeriods string   `json:"selectTimeperiods,omitempty"`
+	SelectGroups      any      `json:"selectGroups,omitempty"`      // "extend" or array of fields
+	SelectHosts       any      `json:"selectHosts,omitempty"`       // "extend" or array of fields
+	SelectTags        any      `json:"selectTags,omitempty"`        // "extend" or array of fields
+	SelectTimePeriods any      `json:"selectTimeperiods,omitempty"` // "extend" or array of fields
+	LimitSelects      int      `json:"limitSelects,omitempty"`      // Limits the number of records returned by subselects
 }
 
 // MaintenanceCreateRequest represents a request to create a maintenance.

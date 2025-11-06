@@ -130,38 +130,58 @@ func appendFlagOptions(options []GetProblemOption, fieldMap map[string][]string)
 // - tags.tag.0, tags.value.0, tags.operator.0
 // - tags.tag.1, tags.value.1, tags.operator.1
 func extractTags(fields []WidgetField) []FilterProblemTags {
-	// Map to collect tag data by index
-	tagMap := make(map[string]*FilterProblemTags) // key: index (e.g., "0", "1")
+	tagMap := buildTagMap(fields)
+	return convertTagMapToSlice(tagMap)
+}
+
+// buildTagMap collects tag data from widget fields into a map indexed by tag number
+func buildTagMap(fields []WidgetField) map[string]*FilterProblemTags {
+	tagMap := make(map[string]*FilterProblemTags)
 
 	for _, field := range fields {
-		if strings.HasPrefix(field.Name, "tags.") {
-			parts := strings.Split(field.Name, ".")
-			if len(parts) != tagFieldParts {
-				continue
-			}
-
-			fieldType := parts[1] // "tag", "value", or "operator"
-			index := parts[2]     // "0", "1", "2", etc.
-			valueStr := fmt.Sprintf("%v", field.Value)
-
-			// Initialize tag entry if not exists
-			if tagMap[index] == nil {
-				tagMap[index] = &FilterProblemTags{}
-			}
-
-			// Set the appropriate field
-			switch fieldType {
-			case "tag":
-				tagMap[index].Tag = valueStr
-			case "value":
-				tagMap[index].Value = valueStr
-			case "operator":
-				tagMap[index].Operator = valueStr
-			}
+		if !strings.HasPrefix(field.Name, "tags.") {
+			continue
 		}
+
+		parts := strings.Split(field.Name, ".")
+		if len(parts) != tagFieldParts {
+			continue
+		}
+
+		fieldType := parts[1] // "tag", "value", or "operator"
+		index := parts[2]     // "0", "1", "2", etc.
+
+		// Initialize tag entry if not exists
+		if tagMap[index] == nil {
+			tagMap[index] = &FilterProblemTags{}
+		}
+
+		processTagField(tagMap[index], fieldType, field.Value)
 	}
 
-	// Convert map to slice
+	return tagMap
+}
+
+// processTagField sets the appropriate field in a FilterProblemTags based on field type
+func processTagField(tag *FilterProblemTags, fieldType string, value any) {
+	valueStr := fmt.Sprintf("%v", value)
+
+	switch fieldType {
+	case "tag":
+		tag.Tag = valueStr
+	case "value":
+		tag.Value = valueStr
+	case "operator":
+		// Convert string to int for operator
+		if operatorInt, err := strconv.Atoi(valueStr); err == nil {
+			tag.Operator = operatorInt
+		}
+		// Note: Invalid operator values default to 0 (Like) which is safe
+	}
+}
+
+// convertTagMapToSlice converts a map of tags to a slice, filtering out empty tags
+func convertTagMapToSlice(tagMap map[string]*FilterProblemTags) []FilterProblemTags {
 	var tags []FilterProblemTags
 	for _, tag := range tagMap {
 		// Only include tags that have at least a tag name
@@ -169,7 +189,6 @@ func extractTags(fields []WidgetField) []FilterProblemTags {
 			tags = append(tags, *tag)
 		}
 	}
-
 	return tags
 }
 
