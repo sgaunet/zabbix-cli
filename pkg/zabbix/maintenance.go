@@ -125,6 +125,31 @@ const (
 	TagsEvalTypeOr TagsEvalType = 1
 )
 
+// UnmarshalJSON is a custom unmarshaler for TagsEvalType to handle both string and int values
+func (tet *TagsEvalType) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as integer first
+	var intValue int
+	if err := json.Unmarshal(data, &intValue); err == nil {
+		*tet = TagsEvalType(intValue)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as string
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err != nil {
+		return fmt.Errorf("failed to unmarshal TagsEvalType from string: %w", err)
+	}
+
+	// Convert string to int
+	intValue, err := strconv.Atoi(stringValue)
+	if err != nil {
+		return fmt.Errorf("failed to parse TagsEvalType from string '%s': %w", stringValue, err)
+	}
+
+	*tet = TagsEvalType(intValue)
+	return nil
+}
+
 // UnmarshalJSON is a custom unmarshaler for MaintenanceType to handle both string and int values
 func (mt *MaintenanceType) UnmarshalJSON(data []byte) error {
 	// Try to unmarshal as integer first
@@ -221,7 +246,7 @@ type Maintenance struct {
 	// Tags to filter problems during maintenance
 	Tags []ProblemTag `json:"tags,omitempty"`
 	// Type of tag evaluation (0=AND, 1=OR)
-	TagsEvalType int `json:"tags_evaltype,omitempty"`
+	TagsEvalType TagsEvalType `json:"tags_evaltype,omitempty"`
 }
 
 // TimePeriod represents a time period for maintenance.
