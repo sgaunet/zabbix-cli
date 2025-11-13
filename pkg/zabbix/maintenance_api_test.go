@@ -94,18 +94,18 @@ func TestMaintenanceCreateWithTagsEvalType(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		tagsEvalType  int
-		expectedValue int
+		tagsEvalType  TagsEvalType
+		expectedValue TagsEvalType
 	}{
 		{
 			name:          "TagsEvalType AND (0)",
-			tagsEvalType:  int(TagsEvalTypeAnd),
-			expectedValue: 0,
+			tagsEvalType:  TagsEvalTypeAnd,
+			expectedValue: TagsEvalTypeAnd,
 		},
 		{
 			name:          "TagsEvalType OR (1)",
-			tagsEvalType:  int(TagsEvalTypeOr),
-			expectedValue: 1,
+			tagsEvalType:  TagsEvalTypeOr,
+			expectedValue: TagsEvalTypeOr,
 		},
 	}
 
@@ -221,7 +221,7 @@ func TestMaintenanceCreateRequestJSONMarshaling(t *testing.T) {
 		WithMaintenanceTimePeriods(timePeriod),
 		WithMaintenanceHostIDs([]string{"1"}),
 		WithMaintenanceTags(tags),
-		WithMaintenanceTagsEvalType(1), // OR
+		WithMaintenanceTagsEvalType(TagsEvalTypeOr),
 		WithMaintenanceAuthToken("token"),
 		WithMaintenanceRequestID(1),
 	)
@@ -246,5 +246,127 @@ func TestMaintenanceCreateRequestJSONMarshaling(t *testing.T) {
 
 	if unmarshaled.Params.TagsEvalType != 1 {
 		t.Errorf("Expected tags_evaltype 1 after unmarshal, got %d", unmarshaled.Params.TagsEvalType)
+	}
+}
+
+// TestMaintenanceTagsEvalTypeUnmarshalCompat tests unmarshaling tags_evaltype from both string and int
+// This ensures compatibility with both Zabbix 6 (returns strings) and Zabbix 7 (may return ints)
+func TestMaintenanceTagsEvalTypeUnmarshalCompat(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		jsonData string
+		expected TagsEvalType
+	}{
+		{
+			name:     "tags_evaltype as string '0' (Zabbix 6)",
+			jsonData: `{"tags_evaltype":"0"}`,
+			expected: TagsEvalTypeAnd,
+		},
+		{
+			name:     "tags_evaltype as string '1' (Zabbix 6)",
+			jsonData: `{"tags_evaltype":"1"}`,
+			expected: TagsEvalTypeOr,
+		},
+		{
+			name:     "tags_evaltype as int 0 (Zabbix 7)",
+			jsonData: `{"tags_evaltype":0}`,
+			expected: TagsEvalTypeAnd,
+		},
+		{
+			name:     "tags_evaltype as int 1 (Zabbix 7)",
+			jsonData: `{"tags_evaltype":1}`,
+			expected: TagsEvalTypeOr,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			var maint struct {
+				TagsEvalType TagsEvalType `json:"tags_evaltype"`
+			}
+
+			err := json.Unmarshal([]byte(tt.jsonData), &maint)
+			if err != nil {
+				t.Fatalf("Failed to unmarshal: %v", err)
+			}
+
+			if maint.TagsEvalType != tt.expected {
+				t.Errorf("Expected TagsEvalType %d, got %d", tt.expected, maint.TagsEvalType)
+			}
+		})
+	}
+}
+
+// TestMaintenanceGetResponseZabbix6Compat tests unmarshaling a real Zabbix 6 response
+func TestMaintenanceGetResponseZabbix6Compat(t *testing.T) {
+	t.Parallel()
+
+	// This is the actual JSON response from Zabbix 6 that was failing
+	zabbix6Response := `{
+		"jsonrpc":"2.0",
+		"result":[
+			{
+				"maintenanceid":"50",
+				"name":"Test maintenance",
+				"maintenance_type":"0",
+				"description":"Maintenance created by zabbix-cli on 2025-11-13 13:55:55",
+				"active_since":"0",
+				"active_till":"1763211300",
+				"tags_evaltype":"0"
+			},
+			{
+				"maintenanceid":"47",
+				"name":"Maintenance",
+				"maintenance_type":"0",
+				"description":"",
+				"active_since":"1722621600",
+				"active_till":"1724349600",
+				"tags_evaltype":"0"
+			}
+		],
+		"id":1
+	}`
+
+	var response struct {
+		JSONRPC string        `json:"jsonrpc"`
+		Result  []Maintenance `json:"result"`
+		ID      int           `json:"id"`
+	}
+
+	err := json.Unmarshal([]byte(zabbix6Response), &response)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal Zabbix 6 response: %v", err)
+	}
+
+	if len(response.Result) != 2 {
+		t.Fatalf("Expected 2 maintenance periods, got %d", len(response.Result))
+	}
+
+	// Verify first maintenance
+	maint1 := response.Result[0]
+	if maint1.MaintenanceID != "50" {
+		t.Errorf("Expected maintenanceid '50', got '%s'", maint1.MaintenanceID)
+	}
+	if maint1.Name != "Test maintenance" {
+		t.Errorf("Expected name 'Test maintenance', got '%s'", maint1.Name)
+	}
+	if maint1.TagsEvalType != TagsEvalTypeAnd {
+		t.Errorf("Expected tags_evaltype AND (0), got %d", maint1.TagsEvalType)
+	}
+	if maint1.MaintenanceType != MaintenanceWithDataCollection {
+		t.Errorf("Expected maintenance_type 0, got %d", maint1.MaintenanceType)
+	}
+
+	// Verify second maintenance
+	maint2 := response.Result[1]
+	if maint2.MaintenanceID != "47" {
+		t.Errorf("Expected maintenanceid '47', got '%s'", maint2.MaintenanceID)
+	}
+	if maint2.TagsEvalType != TagsEvalTypeAnd {
+		t.Errorf("Expected tags_evaltype AND (0), got %d", maint2.TagsEvalType)
 	}
 }
